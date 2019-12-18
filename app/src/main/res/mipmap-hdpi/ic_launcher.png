@@ -1,0 +1,74 @@
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <import type="android.view.View" />
+
+        <variable
+            name="acceptListener"
+            type="android.view.View.OnClickListener" />
+
+        <variable
+            name="cancelListener"
+            type="android.view.View.OnClickListener" />
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="301dp"
+        android:background="@color/colorWhite">
+
+        <androidx.constraintlayout.widget.Guideline
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/gd_left"
+            android:orientation="vertical"
+            app:layout_constraintGuide_percent=".065625"/>
+        <androidx.constraintlayout.widget.Guideline
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/gd_top"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".0633333333"/>
+        <androidx.constraintlayout.widget.Guideline
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/gd_top"
+            android:orientation="horizontal"
+            app:layout_constraintGuide_percent=".0633333333"/>
+
+
+
+
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/layout_bottom"
+            android:layout_width="0dp"
+            android:layout_height="0dp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHeight_percent=".2"
+            app:layout_constraintStart_toStartOf="parent">
+
+            <Button
+                android:id="@+id/btn_cancel"
+                style="@style/borderlessButton"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:background="@drawable/dialog_btn_cancel"
+                android:fontFamily="@font/notosanskr_regular"
+                android:onClick="@{cancelListener}"
+                android:text="@string/cancel"
+                android:textColor="@drawable/dialog_btn_cancel"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintWidth_percent=".5" />
+
+            <Button
+                android:id="@+id/btn_accept"
+                style="@style/borderlessButton"
+                android:layout_width="0dp"
+                android:layout_height="0dp"
+                android:backg

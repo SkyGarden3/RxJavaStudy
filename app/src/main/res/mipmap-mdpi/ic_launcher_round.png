@@ -1,0 +1,81 @@
+package com.deepmedi.homanager.view.custom
+
+import android.content.Context
+import android.util.AttributeSet
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.LinearLayout
+import androidx.core.content.ContextCompat
+import com.aigestudio.wheelpicker.WheelPicker
+import com.deepmedi.homanager.R
+import com.deepmedi.homanager.utils.data.WeekCalendarUtil
+import com.deepmedi.homanager.utils.design.ScreenUtils
+import com.prolificinteractive.materialcalendarview.CalendarDay
+import java.util.*
+
+class WsDatePicker : LinearLayout {
+
+    private val selectDate = intArrayOf(0, 0, 0)
+    private lateinit var yearPicker: WheelPicker
+    private lateinit var monthPicker: WheelPicker
+    private lateinit var dayPicker: WheelPicker
+    private lateinit var listener: (year: Int, month: Int, day: Int) -> Unit
+
+    constructor(context: Context) : super(context) {
+        init(null, 0)
+    }
+
+    constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
+        init(attrs, 0)
+    }
+
+    constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(
+        context,
+        attrs,
+        defStyle
+    ) {
+        init(attrs, defStyle)
+    }
+
+    private fun init(attrs: AttributeSet?, defStyle: Int) {
+        // Load attributes
+        val infService = Context.LAYOUT_INFLATER_SERVICE
+        val layoutInflater = context.getSystemService(infService) as LayoutInflater
+        val v = layoutInflater.inflate(R.layout.date_picker, this, false)
+        addView(v)
+
+        val calendar = GregorianCalendar().apply {
+            timeInMillis = Date().time
+        }
+
+        setDate(
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH) + 1,
+            calendar.get(Calendar.DAY_OF_MONTH)
+        )
+
+        if (ScreenUtils.getLocale() == "ko") {
+            findViewById<View>(R.id.date_picker_panel).visibility = View.VISIBLE
+            yearPicker = findViewById(R.id.year_picker)
+            monthPicker = findViewById(R.id.month_picker)
+            dayPicker = findViewById(R.id.day_picker)
+
+            setDatePicker("%d년", "%d일")
+        } else {
+            findViewById<View>(R.id.date_picker_panel_en).visibility = View.VISIBLE
+            yearPicker = findViewById(R.id.year_picker_en)
+            monthPicker = findViewById(R.id.month_picker_en)
+            dayPicker = findViewById(R.id.day_picker_en)
+            setDatePicker()
+        }
+
+    }
+
+    fun setDateChangedListener(listener: (year: Int, month: Int, day: Int) -> Unit) {
+        this.listener = listener
+    }
+
+
+    private fun setDatePicker(yearFormat: String = "%d", dayFormat: String = "%d") {
+        yearPicker.run {
+            val d

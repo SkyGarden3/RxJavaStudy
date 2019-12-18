@@ -1,0 +1,164 @@
+
+package com.deepmedi.homanager.alarm;
+
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.ImageButton;
+import android.widget.RelativeLayout;
+import android.widget.TextView;
+import com.chauthai.swipereveallayout.SwipeRevealLayout;
+import com.chauthai.swipereveallayout.ViewBinderHelper;
+import com.deepmedi.homanager.R;
+import com.deepmedi.homanager.utils.Logger;
+import com.deepmedi.homanager.utils.design.ScreenUtils;
+import com.prolificinteractive.materialcalendarview.CalendarDay;
+
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.GregorianCalendar;
+
+public class AlarmListAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
+    private final String TAG = "AlarmActivity";
+
+    private Context mContext;
+    private DataSource mDataSource;
+
+    private DateTime mDateTime;
+
+    private AlarmManager mAlarmManager;
+    private ViewBinderHelper viewBinderHelper;
+
+    private final int TYPE_FOOTER = 0;
+    private final int TYPE_ITEM = 1;
+    public AlarmListRecyclerViewClickListener mListener;
+
+
+    interface AlarmListRecyclerViewClickListener {
+        void onItemClicked(int position);
+
+        void onAddAlarmClicked();
+
+        void onDeleteButtonClicked(int position);
+    }
+
+    public void addDefaultAlarm() {
+        Alarm alarm = new Alarm(mContext);
+        alarm.setOccurence(1);
+        alarm.setEnabled(true);
+
+        GregorianCalendar mCalendar = new GregorianCalendar();
+        mCalendar.setTimeInMillis(alarm.getDate());
+        mCalendar = new GregorianCalendar(mCalendar.get(Calendar.YEAR), mCalendar.get(Calendar.MONTH), mCalendar.get(Calendar.DAY_OF_MONTH), 9, 0);
+        alarm.setDate(mCalendar.getTimeInMillis());
+        add(alarm);
+    }
+
+
+    public AlarmListAdapter(Context context) {
+        mContext = context;
+        mDataSource = DataSource.getInstance(context);
+
+
+        Logger.Companion.i("_AlarmListAdapter.create()");
+
+        mDateTime = new DateTime(context);
+        mAlarmManager = (AlarmManager) context.getSystemService(mContext.ALARM_SERVICE);
+        viewBinderHelper = new ViewBinderHelper();
+
+
+        Logger.Companion.d("" + mDataSource.size());
+
+
+        if (mDataSource.size() == -1) {
+            Alarm monthlyAlarm = new Alarm(context);
+
+            int min = Integer.parseInt(new SimpleDateFormat("mm").format(new Date()));
+            int month = CalendarDay.today().getMonth();
+            if (CalendarDay.today().getDay() > 1 || (CalendarDay.today().getDay() == 1 && Integer.parseInt(new SimpleDateFormat("HH").format(new Date())) > 18)) {
+                month++;
+            }
+//            GregorianCalendar mCalendar = new GregorianCalendar(2019, month, 4, Integer.parseInt(new SimpleDateFormat("HH").format(new Date())), min+1);
+            GregorianCalendar mCalendar = new GregorianCalendar(2019, month, 1, 18, 0);
+            monthlyAlarm.setEnabled(false);
+            monthlyAlarm.setOccurence(0);
+            monthlyAlarm.setTitle("monthly");
+            monthlyAlarm.setDate(mCalendar.getTimeInMillis());
+            Logger.Companion.d(monthlyAlarm.toString());
+            add(monthlyAlarm);
+        }
+        Logger.Companion.d("" + mDataSource.getMonthlyAlarm().getDate());
+        Logger.Companion.d(new SimpleDateFormat("yyyy-MM-dd HH-mm").format(new Date(mDataSource.getMonthlyAlarm().getDate())));
+
+
+        dataSetChanged();
+    }
+
+
+    void setOnClickListener(AlarmListRecyclerViewClickListener listener) {
+        this.mListener = listener;
+    }
+
+    @NonNull
+    @Override
+    public RecyclerView.ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+        if (viewType == TYPE_ITEM) {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_alarm, parent, false);
+            return new AlarmViewHolder(view);
+        } else {
+            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.item_alarm_footer, parent, false);
+            return new FooterHolder(view);
+        }
+    }
+
+    @Override
+    public void onBindViewHolder(@NonNull RecyclerView.ViewHolder holder, int i) {
+        final int position = holder.getAdapterPosition();
+        if (holder instanceof AlarmViewHolder) {
+            AlarmViewHolder alarmViewHolder = (AlarmViewHolder) holder;
+
+
+            Alarm alarm = mDataSource.get(position);
+            String data = mDateTime.formatDetails(alarm);
+            viewBinderHelper.bind(alarmViewHolder.swipeLayout, data);
+
+            int hour = Integer.parseInt(data.split(":")[0].replace(" ", ""));
+            String min = data.split(":")[1].replace(" ", "");
+            String am_pm = mContext.getString(R.string.am);
+            if (hour >= 12) {
+                if(hour > 12){
+                    hour -= 12;
+                }
+                am_pm = mContext.getString(R.string.pm);
+            } else if (hour == 0) {
+                hour = 12;
+            }
+
+            alarmViewHolder.alarmName.setText(mContext.getString(R.string.activity_alarm_txt4) + (position + 1));
+
+            if (ScreenUtils.Companion.getLocale() == "en") {
+                alarmViewHolder.alarmTime.setText("" + hour + " : " + min + " " + am_pm);
+            } else {
+                alarmViewHolder.alarmTime.setText("" + am_pm + " " + hour + " : " + min);
+            }
+
+//            alarmViewHolder.alarmTime.setText(mDateTime.formatDetails(alarm) + (alarm.getEnabled() ? "" : " [disabled]"));
+
+            if (mListener != null) {
+                alarmViewHolder.alarmPanel.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view) {
+                        mListener.onItemClicked(position);
+                    }
+                });
+                alarmViewHolder.delAlarmBtn.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View view)
