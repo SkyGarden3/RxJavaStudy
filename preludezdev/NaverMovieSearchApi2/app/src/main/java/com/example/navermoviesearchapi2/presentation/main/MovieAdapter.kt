@@ -9,15 +9,8 @@ import com.example.navermoviesearchapi2.databinding.ItemMovieBinding
 
 class MovieAdapter(private val clickEvent: (url: String) -> Unit) :
     RecyclerView.Adapter<MovieAdapter.MovieViewHolder>() {
+
     private val data = mutableListOf<MovieListResponse.Item>()
-
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder =
-        MovieViewHolder(parent, clickEvent)
-
-    override fun getItemCount(): Int = data.size
-
-    override fun onBindViewHolder(holder: MovieViewHolder, position: Int) =
-        holder.bindTo(data[position])
 
     fun setData(newData: List<MovieListResponse.Item>?) {
         if (newData != null) {
@@ -26,6 +19,14 @@ class MovieAdapter(private val clickEvent: (url: String) -> Unit) :
             notifyDataSetChanged()
         }
     }
+
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MovieViewHolder =
+        MovieViewHolder(parent, clickEvent)
+
+    override fun getItemCount(): Int = data.size
+
+    override fun onBindViewHolder(holder: MovieViewHolder, position: Int) =
+        holder.bindTo(data[position])
 
     class MovieViewHolder(parent: ViewGroup, clickEvent: (url: String) -> Unit) :
         BaseViewHolder<ItemMovieBinding>(R.layout.item_movie, parent) {

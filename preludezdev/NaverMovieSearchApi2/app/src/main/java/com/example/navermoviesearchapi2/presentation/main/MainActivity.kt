@@ -28,7 +28,7 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
             .buffer(2, 1)
             .map { it[0] to it[1] }
             .subscribe({
-                when (it.second - it.first < TOAST_DURATION) {
+                when (it.second - it.first < BACK_BUTTON_TOAST_DURATION) {
                     true -> finish()
                     false -> showBackButtonToast()
                 }
@@ -40,6 +40,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         MovieAdapter { clickEvent(it) }
     }
     private val viewModel by viewModel<MainViewModel>()
+
+    private fun clickEvent(url: String) {
+        startActivity(Intent(this, DetailActivity::class.java).apply {
+            putExtra(KEY_URL, url)
+        })
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -90,12 +96,6 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         imm.hideSoftInputFromWindow(binding.etSearch.windowToken, 0)
     }
 
-    private fun clickEvent(url: String) {
-        startActivity(Intent(this, DetailActivity::class.java).apply {
-            putExtra(KEY_URL, url)
-        })
-    }
-
     private fun showBackButtonToast() {
         showToastMessage("뒤로가기 버튼을 한번 더 누르면 종료됩니다.")
     }
@@ -106,12 +106,12 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
     }
 
     override fun onDestroy() {
-        super.onDestroy()
         backButtonSubjectDisposable.dispose()
+        super.onDestroy()
     }
 
     companion object {
         const val KEY_URL = "KEY_URL"
-        const val TOAST_DURATION = 1500L
+        const val BACK_BUTTON_TOAST_DURATION = 1500L
     }
 }
