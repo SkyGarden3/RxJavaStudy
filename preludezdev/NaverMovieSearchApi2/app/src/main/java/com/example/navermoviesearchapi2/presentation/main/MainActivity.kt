@@ -12,9 +12,29 @@ import com.example.navermoviesearchapi2.R
 import com.example.navermoviesearchapi2.base.BaseActivity
 import com.example.navermoviesearchapi2.databinding.ActivityMainBinding
 import com.example.navermoviesearchapi2.presentation.detail.DetailActivity
+import io.reactivex.BackpressureStrategy
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
+import io.reactivex.subjects.BehaviorSubject
+import io.reactivex.subjects.Subject
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
+
+    private val backButtonSubject: Subject<Long> = BehaviorSubject.createDefault(0L).toSerialized()
+    private val backButtonSubjectDisposable: Disposable =
+        backButtonSubject.toFlowable(BackpressureStrategy.BUFFER)
+            .observeOn(AndroidSchedulers.mainThread())
+            .buffer(2, 1)
+            .map { it[0] to it[1] }
+            .subscribe({
+                when (it.second - it.first < TOAST_DURATION) {
+                    true -> finish()
+                    false -> showBackButtonToast()
+                }
+            }, {
+                showToastMessage("backButtonSubjectDisposable 에러 발생")
+            })
 
     private val movieAdapter by lazy {
         MovieAdapter { clickEvent(it) }
@@ -76,7 +96,22 @@ class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
         })
     }
 
+    private fun showBackButtonToast() {
+        showToastMessage("뒤로가기 버튼을 한번 더 누르면 종료됩니다.")
+    }
+
+    override fun onBackPressed() {
+        //super.onBackPressed()
+        backButtonSubject.onNext(System.currentTimeMillis())
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        backButtonSubjectDisposable.dispose()
+    }
+
     companion object {
         const val KEY_URL = "KEY_URL"
+        const val TOAST_DURATION = 1500L
     }
 }
