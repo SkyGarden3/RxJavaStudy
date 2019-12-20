@@ -20,7 +20,6 @@ import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.CompositeDisposable
 import io.reactivex.subjects.BehaviorSubject
-import io.reactivex.subjects.Subject
 import kotlinx.android.synthetic.main.activity_main.*
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import java.util.concurrent.TimeUnit
@@ -28,7 +27,7 @@ import java.util.concurrent.TimeUnit
 class MainActivity : BaseActivity<ActivityMainBinding>(R.layout.activity_main) {
 
     private val compositeDisposable = CompositeDisposable()
-    private val backButtonSubject: Subject<Long> = BehaviorSubject.createDefault(0L).toSerialized()
+    private val backButtonSubject = BehaviorSubject.createDefault(0L).toSerialized()
     private val viewModel by viewModel<MainViewModel>()
     private val movieAdapter by lazy {
         MovieAdapter { clickEvent(it) }
