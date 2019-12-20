@@ -12,8 +12,7 @@ import com.example.navermoviesearchapi2.presentation.main.MovieAdapter
 fun ImageView.setImageUrl(url: String?) {
     if (url.isNullOrEmpty()) return
 
-    Glide
-        .with(this)
+    Glide.with(this)
         .load(url)
         .placeholder(R.drawable.loading)
         .error(R.drawable.image_not_found)
