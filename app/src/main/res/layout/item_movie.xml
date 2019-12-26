@@ -41,13 +41,14 @@
             app:layout_constraintVertical_bias=".1"
             tools:text="엑스맨:다크피닉스" />
 
-        <TextView
+        <RatingBar
+            style="@style/Widget.AppCompat.RatingBar.Small"
             android:id="@+id/tv_rate"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@{item.userRating}"
-            android:textColor="@color/colorBlack"
-            android:textSize="14sp"
+            android:numStars="5"
+            android:stepSize="0.5"
+            android:rating="@{Float.valueOf(item.userRating) / 2f}"
             app:layout_constraintBottom_toTopOf="@id/tv_pub_date"
             app:layout_constraintStart_toEndOf="@id/iv_img"
             app:layout_constraintTop_toBottomOf="@id/tv_title" />

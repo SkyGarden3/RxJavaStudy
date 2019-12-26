@@ -6,7 +6,9 @@ import com.sample.rxnaversearchapi.base.BaseViewModel
 import com.sample.rxnaversearchapi.data.model.MovieItem
 import com.sample.rxnaversearchapi.data.repository.MovieRepository
 import com.sample.rxnaversearchapi.ext.plusAssign
+import com.sample.rxnaversearchapi.network.model.MovieDataResponse
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.observers.DisposableSingleObserver
 import io.reactivex.schedulers.Schedulers
 
 class MovieViewModel(private val movieRepository: MovieRepository) : BaseViewModel() {
@@ -24,13 +26,16 @@ class MovieViewModel(private val movieRepository: MovieRepository) : BaseViewMod
         compositeDisposable += movieRepository.getMovieList(keyWord)
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribe({
-                _movieItemList.value = it.movieResponseList.map { movieResponse ->
-                    movieResponse.toMovieItem(onItemClickEvent)
+            .subscribeWith(object : DisposableSingleObserver<MovieDataResponse>() {
+                override fun onSuccess(t: MovieDataResponse) {
+                    _movieItemList.value = t.movieResponseList.map { movieResponse ->
+                        movieResponse.toMovieItem(onItemClickEvent)
+                    }
                 }
-            }, {
 
+                override fun onError(e: Throwable) {
+
+                }
             })
     }
-
 }
