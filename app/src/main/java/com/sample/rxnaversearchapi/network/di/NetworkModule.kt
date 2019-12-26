@@ -10,9 +10,15 @@ val networkModule = module {
     single {
         Retrofit.Builder()
             .baseUrl("https://openapi.naver.com/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
+            .addConverterFactory(get())
+            .addCallAdapterFactory(get())
             .build()
             .create(MovieSearchApi::class.java)
+    }
+    single {
+        GsonConverterFactory.create()
+    }
+    single {
+        RxJava2CallAdapterFactory.create()
     }
 }
