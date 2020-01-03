@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools">
+
+    <data>
+
+        <variable
+            name="item"
+            type="com.sample.rxnaversearchapi.data.model.MovieItem" />
+
+    </data>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="200dp"
+        android:onClick="@{() -> item.onClick.invoke(item)}">
+
+
+        <ImageView
+            android:id="@+id/iv_img"
+            imgUrl="@{item.image}"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:adjustViewBounds="true"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintWidth_percent="0.25" />
+
+        <TextView
+            android:id="@+id/tv_title"
+            htmlText="@{item.title}"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textColor="@color/colorBlack"
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_img"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias=".1"
+            tools:text="엑스맨:다크피닉스" />
+
+        <RatingBar
+            style="@style/Widget.AppCompat.RatingBar.Small"
+            android:id="@+id/tv_rate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:numStars="5"
+            android:stepSize="0.5"
+            android:rating="@{Float.valueOf(item.userRating) / 2f}"
+            app:layout_constraintBottom_toTopOf="@id/tv_pub_date"
+            app:layout_constraintStart_toEndOf="@id/iv_img"
+            app:layout_constraintTop_toBottomOf="@id/tv_title" />
+
+        <TextView
+            android:id="@+id/tv_pub_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{item.pubDate}"
+            android:textColor="@color/colorBlack"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toTopOf="@id/tv_director"
+            app:layout_constraintStart_toEndOf="@id/iv_img"
+            app:layout_constraintTop_toBottomOf="@id/tv_rate"
+            tools:text="2019" />
+
+        <TextView
+            android:id="@+id/tv_director"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@{item.director}"
+            android:textColor="@color/colorBlack"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toTopOf="@id/tv_actor"
+            app:layout_constraintStart_toEndOf="@id/iv_img"
+            app:layout_constraintTop_toBottomOf="@id/tv_pub_date" />
+
+        <TextView
+            android:id="@+id/tv_actor"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:text="@{item.actor}"
+            android:textColor="@color/colorBlack"
+            android:textSize="14sp"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintStart_toEndOf="@id/iv_img"
+            app:layout_constraintTop_toBottomOf="@id/tv_director" />
+
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+</layout>
