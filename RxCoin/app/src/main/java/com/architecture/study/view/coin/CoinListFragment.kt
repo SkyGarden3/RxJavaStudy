@@ -1,6 +1,7 @@
 package com.architecture.study.view.coin
 
 import android.os.Bundle
+import android.view.View
 import android.widget.Toast
 import androidx.lifecycle.Observer
 import com.architecture.study.BR
@@ -16,22 +17,12 @@ import org.koin.core.parameter.parametersOf
 
 class CoinListFragment : BaseFragment<FragmentCoinlistBinding>(R.layout.fragment_coinlist) {
 
-    private val tabList = listOf(
-        R.string.monetary_unit_1,
-        R.string.monetary_unit_2,
-        R.string.monetary_unit_3,
-        R.string.monetary_unit_4
-    )
-
     private val tickerViewModel by viewModel<TickerViewModel> {
-        parametersOf(tabList.map { getString(it) })
+        parametersOf(arguments?.getString(BASE_CURRENCY))
     }
 
-    private val monetaryUnitList = mutableListOf<String>()
-
-    @Suppress("UNCHECKED_CAST")
-    override fun onActivityCreated(savedInstanceState: Bundle?) {
-        super.onActivityCreated(savedInstanceState)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
         binding.run {
             tickerVM = tickerViewModel
@@ -39,32 +30,25 @@ class CoinListFragment : BaseFragment<FragmentCoinlistBinding>(R.layout.fragment
                 object : BaseAdapter<Ticker, ItemTickerBinding>(R.layout.item_ticker, BR.ticker) {}
         }
 
-        tickerViewModel
-            .exceptionMessage
+        tickerViewModel.exceptionMessage
             .observe(this@CoinListFragment, Observer {
                 showMessage(it)
             })
 
-    }
-
-    override fun onResume() {
-        super.onResume()
-        if(monetaryUnitList.isNotEmpty()){
-            tickerViewModel.getTickerList(monetaryUnitList)
-        }
+        tickerViewModel.getTickerList()
     }
 
     private fun showMessage(message: String) {
         Toast.makeText(requireContext(), message, Toast.LENGTH_SHORT).show()
     }
 
-    fun setMonetaryUnitList(monetaryUnitList: List<String>) {
-        this.monetaryUnitList.clear()
-        this.monetaryUnitList.addAll(monetaryUnitList)
-        tickerViewModel.getTickerList(monetaryUnitList)
-    }
-
     companion object {
-        fun newInstance() = CoinListFragment()
+        private const val BASE_CURRENCY = "base_currency"
+
+        fun newInstance(currency: String) = CoinListFragment().apply {
+            arguments = Bundle().apply {
+                putString(BASE_CURRENCY, currency)
+            }
+        }
     }
 }

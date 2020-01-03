@@ -1,8 +1,8 @@
-package com.architecture.study.network.model
+package com.architecture.study.network.model.upbit
 
 import com.google.gson.annotations.SerializedName
 
-data class MarketResponse(
+data class UpbitMarketResponse(
     @SerializedName("english_name")
     val englishName: String,
     @SerializedName("korean_name")

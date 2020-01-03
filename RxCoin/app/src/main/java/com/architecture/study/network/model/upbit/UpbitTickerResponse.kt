@@ -1,4 +1,4 @@
-package com.architecture.study.network.model
+package com.architecture.study.network.model.upbit
 
 import com.architecture.study.R
 import com.architecture.study.data.model.Ticker
@@ -6,7 +6,7 @@ import com.google.gson.annotations.SerializedName
 import java.text.DecimalFormat
 
 
-data class TickerResponse(
+data class UpbitTickerResponse(
     @SerializedName("acc_trade_price")
     val accTradePrice: Double,
     @SerializedName("acc_trade_price_24h")
@@ -60,53 +60,30 @@ data class TickerResponse(
     @SerializedName("trade_volume")
     val tradeVolume: Double
 ) {
-    fun toTicker(monetaryUnitList: List<String>, onClick: (ticker: Ticker) -> Unit): Ticker {
+    fun toTicker(onClick: (ticker: Ticker) -> Unit): Ticker {
         val unitName = market.split("-")[0]
         val coinName = market.split("-")[1]
         val nowPrice = DecimalFormat("0.########").format(tradePrice)
         val compareYesterday: String
         val compareYesterdayTextColor: Int
-        if (tradePrice > prevClosingPrice) {
-            compareYesterday =
-                DecimalFormat("0.##").format((1 - (prevClosingPrice / tradePrice)) * 10.0) + "%"
-            compareYesterdayTextColor = R.color.colorRed
-        } else {
-            compareYesterday =
-                "-" + DecimalFormat("0.##").format((1 - (tradePrice / prevClosingPrice)) * 10.0) + "%"
-            compareYesterdayTextColor = R.color.colorBlue
+
+
+        val compare = ((tradePrice / prevClosingPrice) - 1) * 100
+        compareYesterday =
+            DecimalFormat("0.##").format(compare) + "%"
+
+        compareYesterdayTextColor = when {
+            compare > 0 -> {
+                R.color.colorRed
+            }
+            compare < 0 -> {
+                R.color.colorBlue
+            }
+            else -> {
+                R.color.colorBlack
+            }
         }
-        val transactionAmount = when (market.split("-")[0]) {
-            monetaryUnitList[0] -> {
-                String.format("%,d", (accTradePrice24h / 1000000).toInt()) + "M"
-            }
-            monetaryUnitList[1] -> {
-                String.format(
-                    "%,d",
-                    DecimalFormat("0.###").format(accTradePrice24h).split(".")[0].toInt()
-                ) + if (DecimalFormat("0.###").format(accTradePrice24h).split(".").size > 1) {
-                    "." + DecimalFormat("0.###").format(accTradePrice24h).split(".")[1]
-                } else {
-                    ""
-                }
-            }
-            monetaryUnitList[2] -> {
-                String.format(
-                    "%,d",
-                    DecimalFormat("0.###").format(accTradePrice24h).split(".")[0].toInt()
-                ) + if (DecimalFormat("0.###").format(accTradePrice24h).split(".").size > 1) {
-                    "." + DecimalFormat("0.###").format(accTradePrice24h).split(".")[1]
-                } else {
-                    ""
-                }
-            }
-            monetaryUnitList[monetaryUnitList.lastIndex] -> {
-                String.format(
-                    "%,d",
-                    DecimalFormat("0.###").format(accTradePrice24h / 1000).split(".")[0].toInt()
-                ) + " k"
-            }
-            else -> error("error")
-        }
+        val transactionAmount = getAmount()
 
         return Ticker(
             unitName,
@@ -117,5 +94,43 @@ data class TickerResponse(
             transactionAmount,
             onClick
         )
+    }
+
+    private fun getAmount() : String{
+        val formatAccTradePrice24h = DecimalFormat("0.###").format(accTradePrice24h)
+
+        return when (market.split("-")[0]) {
+            "KRW" -> {
+                String.format("%,d", (accTradePrice24h / 1000000).toInt()) + "M"
+            }
+            "BTC" -> {
+                String.format(
+                    "%,d",
+                    formatAccTradePrice24h.split(".")[0].toInt()
+                ) + if (formatAccTradePrice24h.split(".").size > 1) {
+                    "." + formatAccTradePrice24h.split(".")[1]
+                } else {
+                    ""
+                }
+            }
+            "ETH" -> {
+                String.format(
+                    "%,d",
+                    formatAccTradePrice24h.split(".")[0].toInt()
+                ) + if (formatAccTradePrice24h.split(".").size > 1) {
+                    "." + formatAccTradePrice24h.split(".")[1]
+                } else {
+                    ""
+                }
+            }
+            "USDT" -> {
+                String.format(
+                    "%,d",
+                    formatAccTradePrice24h.split(".")[0].toInt()
+                ) + " k"
+            }
+
+            else -> error("error")
+        }
     }
 }

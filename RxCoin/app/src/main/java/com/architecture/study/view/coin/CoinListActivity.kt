@@ -4,62 +4,27 @@ import android.os.Bundle
 import android.widget.Toast
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
-import androidx.lifecycle.Observer
 import com.architecture.study.R
 import com.architecture.study.base.BaseActivity
 import com.architecture.study.databinding.ActivityCoinBinding
-import com.architecture.study.viewmodel.MarketViewModel
 import com.google.android.material.tabs.TabLayout
-import org.koin.androidx.viewmodel.ext.android.viewModel
 
 
 class CoinListActivity : BaseActivity<ActivityCoinBinding>(R.layout.activity_coin) {
 
-    private val marketViewModel by viewModel<MarketViewModel>()
-
     private val tabList = listOf(
         R.string.monetary_unit_1,
         R.string.monetary_unit_2,
-        R.string.monetary_unit_3,
         R.string.monetary_unit_4
     )
 
     @Suppress("UNCHECKED_CAST")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        setTabPager()
-        marketViewModel.run {
-            getMarketList()
-
-            exceptionMessage.observe(this@CoinListActivity, Observer {
-                showMessage(it)
-            })
-
-            marketList.observe(this@CoinListActivity, Observer { marketList ->
-                supportFragmentManager.fragments.forEachIndexed { index, fragment ->
-                    (fragment as? CoinListFragment)?.setMonetaryUnitList(marketList
-                        .asSequence()
-                        .filter {
-                            it.market.split("-")[0] == getString(
-                                tabList[index]
-                            )
-                        }
-                        .map { it.market }
-                        .toList()
-                    )
-                }
-            })
-        }
+        setupView()
     }
 
-    private fun showMessage(message: String) {
-        Toast.makeText(this@CoinListActivity, message, Toast.LENGTH_SHORT).show()
-    }
-
-    /* tab layout && view pager init*/
-    private fun setTabPager() {
-
+    private fun setupView() {
         binding.run {
             tabLayoutMonetaryUnit.setupWithViewPager(viewPagerCoinList)
 
@@ -69,10 +34,8 @@ class CoinListActivity : BaseActivity<ActivityCoinBinding>(R.layout.activity_coi
                     supportFragmentManager,
                     BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT
                 ) {
-
                     override fun getItem(position: Int): Fragment =
-                        CoinListFragment.newInstance()
-
+                        CoinListFragment.newInstance(getString(tabList[position]))
 
                     override fun getCount(): Int =
                         tabList.size
