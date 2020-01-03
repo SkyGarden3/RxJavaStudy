@@ -1,7 +1,10 @@
 package com.architecture.study.network.model.upbit
 
 import com.architecture.study.R
+import com.architecture.study.data.enums.Exchange
+import com.architecture.study.data.model.CompareTicker
 import com.architecture.study.data.model.Ticker
+import com.architecture.study.data.model.TickerProvider
 import com.google.gson.annotations.SerializedName
 import java.text.DecimalFormat
 
@@ -59,40 +62,30 @@ data class UpbitTickerResponse(
     val tradeTimestamp: Long,
     @SerializedName("trade_volume")
     val tradeVolume: Double
-) {
-    fun toTicker(onClick: (ticker: Ticker) -> Unit): Ticker {
-        val unitName = market.split("-")[0]
-        val coinName = market.split("-")[1]
+): TickerProvider {
+    override fun toTicker(onClick: (ticker: Ticker) -> Unit, coinName: String): Ticker {
         val nowPrice = DecimalFormat("0.########").format(tradePrice)
-        val compareYesterday: String
-        val compareYesterdayTextColor: Int
-
-
         val compare = ((tradePrice / prevClosingPrice) - 1) * 100
-        compareYesterday =
-            DecimalFormat("0.##").format(compare) + "%"
-
-        compareYesterdayTextColor = when {
-            compare > 0 -> {
-                R.color.colorRed
-            }
-            compare < 0 -> {
-                R.color.colorBlue
-            }
-            else -> {
-                R.color.colorBlack
-            }
-        }
         val transactionAmount = getAmount()
 
         return Ticker(
-            unitName,
-            coinName,
+            market.split("-")[1],
             nowPrice,
-            compareYesterday,
-            compareYesterdayTextColor,
+            compare,
             transactionAmount,
             onClick
+        )
+    }
+
+    override fun toCompareTicker(basePrice: Double, coinName: String): CompareTicker {
+        val nowPrice = DecimalFormat("0.########").format(tradePrice)
+        val transactionAmount = getAmount()
+        return CompareTicker(
+            coinName = market.split("-")[1],
+            exchangeName = Exchange.UPBIT.exchangeName,
+            nowPrice = nowPrice,
+            comparePrice = tradePrice - basePrice,
+            transactionAmount = transactionAmount
         )
     }
 

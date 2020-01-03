@@ -1,71 +1,65 @@
 package com.architecture.study.viewmodel
 
-import android.util.Log
+import android.content.Intent
+import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import com.architecture.study.App
 import com.architecture.study.base.BaseViewModel
+import com.architecture.study.data.model.CompareTicker
 import com.architecture.study.data.model.Ticker
-import com.architecture.study.data.repository.UpbitRepository
-import com.architecture.study.network.model.upbit.UpbitMarketResponse
-import com.architecture.study.network.model.upbit.UpbitTickerResponse
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.observers.DisposableSingleObserver
-import io.reactivex.schedulers.Schedulers
-import plusAssign
+import com.architecture.study.data.repository.TickerRepository
+import com.architecture.study.util.PrefUtil
+import com.architecture.study.view.coin.CoinListActivity
+import com.architecture.study.view.coin.ExchangeCompareActivity
+import org.koin.android.ext.android.get
+import org.koin.core.qualifier.named
 
-class TickerViewModel(
-    private val upbitRepository: UpbitRepository,
-    private val baseCurrency: String
-) : BaseViewModel() {
+class TickerViewModel(private val baseCurrency: String) : BaseViewModel() {
 
-    val tickerList = MutableLiveData<List<Ticker>>()
-    val currencyMarketList = MutableLiveData<List<String>>()
+
+    private val context = App.instance.context()
+
+    private val _tickerList = MutableLiveData<List<Ticker>>()
+    val tickerList: LiveData<List<Ticker>>
+        get() = _tickerList
+
+    private val _clickedTicker = MutableLiveData<CompareTicker>()
+    val clickedTicker: LiveData<CompareTicker>
+        get() = _clickedTicker
+
+    private lateinit var tickerRepository: TickerRepository
+    private var currentExchange = ""
 
     private val onClick: (ticker: Ticker) -> Unit = { ticker ->
-        Log.d("TickerViewModel", "$ticker")
+        _clickedTicker.value =
+            ticker.toCompareTicker(basePrice = ticker.nowPrice.replace(",", "").toDouble()).apply {
+                baseCurrency = this@TickerViewModel.baseCurrency
+                exchangeName = currentExchange
+            }
+
+        val intent = Intent(context, ExchangeCompareActivity::class.java).apply {
+            putExtra(ExchangeCompareActivity.CLICKED_TICKER, _clickedTicker.value!!)
+        }
+        context.startActivity(intent)
     }
 
+    fun start(currentExchange: String) {
+        this.currentExchange = currentExchange
+        initTickerRepository(currentExchange)
+    }
+
+    private fun initTickerRepository(currentExchange: String) {
+        tickerRepository = App.instance.get(named(currentExchange))
+    }
 
     fun getTickerList() {
-        currencyMarketList.value?.let {
-            compositeDisposable += upbitRepository.getTickerList(it.joinToString())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(object : DisposableSingleObserver<List<UpbitTickerResponse>>() {
-                    override fun onSuccess(tickerResponseList: List<UpbitTickerResponse>) {
-                        val convertTickerList = mutableListOf<Ticker>()
-                        tickerResponseList.map {
-                            convertTickerList.add(it.toTicker(onClick))
-                        }
-                        if (convertTickerList.isEmpty()) {
-                            exceptionMessage.value = "empty"
-                        }
-                        tickerList.value = convertTickerList
-                    }
-
-                    override fun onError(e: Throwable) {
-                        exceptionMessage.value = e.message
-                    }
-                })
-        } ?: run {
-            compositeDisposable += upbitRepository.getMarketList()
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
-                .subscribeWith(object : DisposableSingleObserver<List<UpbitMarketResponse>>() {
-                    override fun onSuccess(marketResponseList: List<UpbitMarketResponse>) {
-                        currencyMarketList.value = marketResponseList.asSequence()
-                            .filter {
-                                it.market.split("-")[0] ==
-                                        baseCurrency
-                            }
-                            .map { it.market }
-                            .toList()
-                        getTickerList()
-                    }
-
-                    override fun onError(e: Throwable) {
-
-                    }
-                })
-        }
+        tickerRepository.getAllTicker(baseCurrency = baseCurrency,
+            success = {
+                _tickerList.value = it
+                tickerRepository.finish()
+            }, failed = {
+                tickerRepository.finish()
+            }, onClick = onClick
+        )
     }
 }

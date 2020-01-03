@@ -4,7 +4,7 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import io.reactivex.disposables.CompositeDisposable
 
-abstract class BaseViewModel() : ViewModel(){
+abstract class BaseViewModel : ViewModel(){
     val exceptionMessage = MutableLiveData<String>()
     protected val compositeDisposable = CompositeDisposable()
 

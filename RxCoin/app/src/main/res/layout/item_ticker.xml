@@ -2,26 +2,26 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <data>
-        <import type="androidx.core.content.ContextCompat"/>
+
         <variable
-            name="ticker"
+            name="item"
             type="com.architecture.study.data.model.Ticker" />
     </data>
+
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:paddingStart="16dp"
-        android:paddingEnd="16dp"
         android:background="?android:attr/selectableItemBackground"
-        android:onClick="@{_ -> ticker.onClick.invoke(ticker)}"
-        >
+        android:onClick="@{_ -> item.onClick.invoke(item)}"
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp">
 
         <TextView
             android:id="@+id/tv_coin_name"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@{ticker.coinName}"
+            android:text="@{item.coinName}"
             android:textColor="@color/colorBlack"
             android:textSize="14sp"
             app:layout_constraintBottom_toBottomOf="parent"
@@ -33,7 +33,7 @@
             android:id="@+id/tv_now_price"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@{ticker.nowPrice}"
+            android:text="@{item.nowPrice}"
             android:textAlignment="center"
             android:textColor="@color/colorBlack"
             android:textSize="12sp"
@@ -44,11 +44,10 @@
 
         <TextView
             android:id="@+id/tv_compare_yesterday"
+            compareDiff="@{item}"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@{ticker.compareYesterday}"
             android:textAlignment="textEnd"
-            android:textColor="@{ContextCompat.getColor(context, ticker.compareYesterdayTextColor)}"
             android:textSize="12sp"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toEndOf="@id/tv_now_price"
@@ -59,7 +58,7 @@
             android:id="@+id/tv_transaction_amount"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="@{ticker.transactionAmount}"
+            android:text="@{item.transactionAmount}"
             android:textAlignment="textEnd"
             android:textColor="@color/colorBlack"
             android:textSize="12sp"
@@ -69,6 +68,5 @@
             app:layout_constraintWidth_percent=".2" />
 
     </androidx.constraintlayout.widget.ConstraintLayout>
-
 
 </layout>

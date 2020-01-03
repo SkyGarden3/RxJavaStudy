@@ -1,10 +1,10 @@
 package com.architecture.study.data.repository
 
 import android.util.Log
+import com.architecture.study.data.model.CompareTicker
 import com.architecture.study.data.model.Ticker
 import com.architecture.study.data.source.remote.BithumbRemoteDataSource
 import com.architecture.study.ext.plusAssign
-import com.architecture.study.network.model.bithumb.BithumbResponse
 import com.architecture.study.network.model.bithumb.BithumbTickerResponse
 import com.google.gson.Gson
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -27,7 +27,7 @@ class BithumbRepository(private val bithumbRemoteDataSource: BithumbRemoteDataSo
         compositeDisposable += bithumbRemoteDataSource.getTickerList()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .map { response->
+            .map { response ->
                 val gson = Gson()
                 response.tickerResponse
                     .filter { it.key != "date" }
@@ -39,6 +39,32 @@ class BithumbRepository(private val bithumbRemoteDataSource: BithumbRemoteDataSo
             .subscribeWith(object : DisposableSingleObserver<List<Ticker>>() {
                 override fun onSuccess(tickerList: List<Ticker>) {
                     success(tickerList)
+                }
+
+                override fun onError(e: Throwable) {
+                    e.message?.let(failed)
+                }
+            })
+        ++subscribeCount
+    }
+
+    override fun getTicker(
+        basePrice: Double,
+        baseCurrency: String,
+        coinName: String,
+        success: (ticker: CompareTicker) -> Unit,
+        failed: (errorCode: String) -> Unit
+    ) {
+        compositeDisposable += bithumbRemoteDataSource
+            .getTicker(orderCurrency = coinName, paymentCurrency = baseCurrency)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .map { response ->
+                response.tickerResponse.toCompareTicker(basePrice, coinName)
+            }
+            .subscribeWith(object : DisposableSingleObserver<CompareTicker>() {
+                override fun onSuccess(compareTicker: CompareTicker) {
+                    success(compareTicker)
                 }
 
                 override fun onError(e: Throwable) {

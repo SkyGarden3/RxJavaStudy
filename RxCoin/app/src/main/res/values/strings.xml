@@ -10,4 +10,8 @@
     <string name="now_price">현재가</string>
     <string name="compare_yesterday">전일대비</string>
     <string name="transaction_amount">거래대금</string>
+    <string name="upbit">Upbit</string>
+    <string name="bithumb">Bithumb</string>
+    <string name="compare_price">가격차이</string>
+    <string name="exchange_name">거래소명</string>
 </resources>

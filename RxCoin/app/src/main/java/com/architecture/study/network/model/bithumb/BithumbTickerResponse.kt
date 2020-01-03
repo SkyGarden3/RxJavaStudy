@@ -1,6 +1,8 @@
 package com.architecture.study.network.model.bithumb
 
 
+import com.architecture.study.data.enums.Exchange
+import com.architecture.study.data.model.CompareTicker
 import com.architecture.study.data.model.Ticker
 import com.architecture.study.data.model.TickerProvider
 import com.google.gson.annotations.SerializedName
@@ -43,6 +45,18 @@ data class BithumbTickerResponse(
             fluctateRate24H,
             transactionAmount,
             onClick
+        )
+    }
+
+    override fun toCompareTicker(basePrice: Double, coinName: String): CompareTicker {
+        val nowPrice = DecimalFormat("0.########").format(closingPrice)
+        val transactionAmount = String.format("%,d", (accTradeValue24H / 1000000).toInt()) + "M"
+        return CompareTicker(
+            coinName = coinName,
+            exchangeName = Exchange.BITHUMB.exchangeName,
+            nowPrice = nowPrice,
+            comparePrice = closingPrice - basePrice,
+            transactionAmount = transactionAmount
         )
     }
 }
