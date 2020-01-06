@@ -28,17 +28,18 @@ class UpbitRepository(private val upbitRemoteDataSource: UpbitRemoteDataSource) 
         compositeDisposable += upbitRemoteDataSource.getMarketList()
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
-            .subscribeWith(object : DisposableSingleObserver<List<UpbitMarketResponse>>() {
-                override fun onSuccess(marketResponseList: List<UpbitMarketResponse>) {
-                    val market = marketResponseList.asSequence()
-                        .filter {
-                            it.market.split("-")[0] ==
-                                    baseCurrency
-                        }
-                        .map { it.market }
-                        .toList()
-
-                    compositeDisposable += upbitRemoteDataSource.getTickerList(market.joinToString())
+            .map { markerResponseList ->
+                markerResponseList.asSequence()
+                    .map { it.market }
+                    .filter {
+                        it.split("-")[0] ==
+                                baseCurrency
+                    }
+                    .toList()
+            }
+            .subscribeWith(object : DisposableSingleObserver<List<String>>() {
+                override fun onSuccess(markets: List<String>) {
+                    compositeDisposable += upbitRemoteDataSource.getTickerList(markets.joinToString())
                         .subscribeOn(Schedulers.io())
                         .observeOn(AndroidSchedulers.mainThread())
                         .subscribeWith(object :
@@ -71,12 +72,14 @@ class UpbitRepository(private val upbitRemoteDataSource: UpbitRemoteDataSource) 
         compositeDisposable += upbitRemoteDataSource.getTickerList("$baseCurrency-$coinName")
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
+            .map {
+                it.map { tickerResponse ->
+                    tickerResponse.toCompareTicker()
+                }
+            }
             .subscribeWith(object :
-                DisposableSingleObserver<List<UpbitTickerResponse>>() {
-                override fun onSuccess(tickerResponseList: List<UpbitTickerResponse>) {
-                    val convertTickerList = tickerResponseList.map { tickerResponse ->
-                        tickerResponse.toCompareTicker()
-                    }
+                DisposableSingleObserver<List<CompareTicker>>() {
+                override fun onSuccess(convertTickerList: List<CompareTicker>) {
                     if (convertTickerList.isNotEmpty()){
                         success(convertTickerList[0])
                     }
