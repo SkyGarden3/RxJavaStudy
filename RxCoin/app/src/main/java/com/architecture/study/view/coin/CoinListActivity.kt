@@ -11,7 +11,6 @@ import com.architecture.study.util.PrefUtil
 
 class CoinListActivity : BaseActivity<ActivityCoinBinding>(R.layout.activity_coin) {
 
-    @Suppress("UNCHECKED_CAST")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -40,7 +39,7 @@ class CoinListActivity : BaseActivity<ActivityCoinBinding>(R.layout.activity_coi
             tlMonetaryUnit.setupWithViewPager(vpCoinList)
 
             vpCoinList.run {
-                offscreenPageLimit = tabList.size
+                offscreenPageLimit = 1
                 adapter = object : FragmentPagerAdapter(
                     supportFragmentManager,
                     BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT

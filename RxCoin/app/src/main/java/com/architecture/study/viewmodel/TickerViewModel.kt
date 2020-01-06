@@ -1,6 +1,6 @@
 package com.architecture.study.viewmodel
 
-import android.content.Intent
+import android.util.Log
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import com.architecture.study.App
@@ -8,11 +8,14 @@ import com.architecture.study.base.BaseViewModel
 import com.architecture.study.data.model.CompareTicker
 import com.architecture.study.data.model.Ticker
 import com.architecture.study.data.repository.TickerRepository
-import com.architecture.study.util.PrefUtil
-import com.architecture.study.view.coin.CoinListActivity
-import com.architecture.study.view.coin.ExchangeCompareActivity
+import com.architecture.study.ext.plusAssign
+import com.architecture.study.util.Event
+import io.reactivex.Observable
+import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.schedulers.Schedulers
 import org.koin.android.ext.android.get
 import org.koin.core.qualifier.named
+import java.util.concurrent.TimeUnit
 
 class TickerViewModel(private val baseCurrency: String) : BaseViewModel() {
 
@@ -23,8 +26,8 @@ class TickerViewModel(private val baseCurrency: String) : BaseViewModel() {
     val tickerList: LiveData<List<Ticker>>
         get() = _tickerList
 
-    private val _clickedTicker = MutableLiveData<CompareTicker>()
-    val clickedTicker: LiveData<CompareTicker>
+    private val _clickedTicker = MutableLiveData<Event<CompareTicker>>()
+    val clickedTicker: LiveData<Event<CompareTicker>>
         get() = _clickedTicker
 
     private lateinit var tickerRepository: TickerRepository
@@ -32,15 +35,16 @@ class TickerViewModel(private val baseCurrency: String) : BaseViewModel() {
 
     private val onClick: (ticker: Ticker) -> Unit = { ticker ->
         _clickedTicker.value =
-            ticker.toCompareTicker(basePrice = ticker.nowPrice.replace(",", "").toDouble()).apply {
-                baseCurrency = this@TickerViewModel.baseCurrency
-                exchangeName = currentExchange
-            }
+            Event(
+                ticker.toCompareTicker().apply {
+                    baseCurrency = this@TickerViewModel.baseCurrency
+                    exchangeName = currentExchange
+                }
+            )
+    }
 
-        val intent = Intent(context, ExchangeCompareActivity::class.java).apply {
-            putExtra(ExchangeCompareActivity.CLICKED_TICKER, _clickedTicker.value!!)
-        }
-        context.startActivity(intent)
+    init {
+        Log.d("TickerViewModel", "init")
     }
 
     fun start(currentExchange: String) {
@@ -53,13 +57,23 @@ class TickerViewModel(private val baseCurrency: String) : BaseViewModel() {
     }
 
     fun getTickerList() {
-        tickerRepository.getAllTicker(baseCurrency = baseCurrency,
-            success = {
-                _tickerList.value = it
-                tickerRepository.finish()
-            }, failed = {
-                tickerRepository.finish()
-            }, onClick = onClick
-        )
+
+        compositeDisposable += Observable.interval(0, 5000L, TimeUnit.MILLISECONDS)
+            .startWith(0)
+            .subscribeOn(Schedulers.io())
+            .observeOn(AndroidSchedulers.mainThread())
+            .subscribe({
+                tickerRepository.getAllTicker(baseCurrency = baseCurrency,
+                    success = {
+                        _tickerList.value = it
+                        tickerRepository.finish()
+                    }, failed = {
+                        tickerRepository.finish()
+                    }, onClick = onClick
+                )
+            }, {
+
+            })
+
     }
 }

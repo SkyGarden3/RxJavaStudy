@@ -1,22 +1,18 @@
 package com.architecture.study.data.repository
 
 import com.architecture.study.data.model.CompareTicker
-import io.reactivex.disposables.CompositeDisposable
 
 class ExchangeRepository(private val tickerRepositoryMap: Map<String, TickerRepository>) {
+
     fun getCompareTickerList(
-        basePrice: Double,
-        baseCurrency: String,
-        coinName: String,
+        clickedTicker: CompareTicker,
         success: (tickers: CompareTicker) -> Unit,
         failed: (errorCode: String) -> Unit
-    ): CompositeDisposable {
-        val compositeDisposable = CompositeDisposable()
+    ) {
         tickerRepositoryMap.forEach { (exchange, repository) ->
             repository.getTicker(
-                basePrice = basePrice,
-                baseCurrency = baseCurrency,
-                coinName = coinName,
+                baseCurrency = clickedTicker.baseCurrency,
+                coinName = clickedTicker.coinName,
                 success = {
                     success(it)
                 },
@@ -25,6 +21,5 @@ class ExchangeRepository(private val tickerRepositoryMap: Map<String, TickerRepo
                 }
             )
         }
-        return compositeDisposable
     }
 }

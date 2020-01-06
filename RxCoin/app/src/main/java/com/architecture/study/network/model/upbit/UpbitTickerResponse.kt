@@ -77,14 +77,13 @@ data class UpbitTickerResponse(
         )
     }
 
-    override fun toCompareTicker(basePrice: Double, coinName: String): CompareTicker {
+    override fun toCompareTicker(coinName: String): CompareTicker {
         val nowPrice = DecimalFormat("0.########").format(tradePrice)
         val transactionAmount = getAmount()
         return CompareTicker(
             coinName = market.split("-")[1],
             exchangeName = Exchange.UPBIT.exchangeName,
             nowPrice = nowPrice,
-            comparePrice = tradePrice - basePrice,
             transactionAmount = transactionAmount
         )
     }

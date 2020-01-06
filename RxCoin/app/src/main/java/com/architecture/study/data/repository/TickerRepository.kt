@@ -12,7 +12,6 @@ interface TickerRepository {
     )
 
     fun getTicker(
-        basePrice: Double,
         baseCurrency: String,
         coinName: String,
         success: (tickers: CompareTicker) -> Unit,

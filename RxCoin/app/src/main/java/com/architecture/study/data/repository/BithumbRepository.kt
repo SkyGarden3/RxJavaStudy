@@ -49,7 +49,6 @@ class BithumbRepository(private val bithumbRemoteDataSource: BithumbRemoteDataSo
     }
 
     override fun getTicker(
-        basePrice: Double,
         baseCurrency: String,
         coinName: String,
         success: (ticker: CompareTicker) -> Unit,
@@ -60,7 +59,7 @@ class BithumbRepository(private val bithumbRemoteDataSource: BithumbRemoteDataSo
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .map { response ->
-                response.tickerResponse.toCompareTicker(basePrice, coinName)
+                response.tickerResponse.toCompareTicker(coinName)
             }
             .subscribeWith(object : DisposableSingleObserver<CompareTicker>() {
                 override fun onSuccess(compareTicker: CompareTicker) {

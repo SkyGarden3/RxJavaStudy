@@ -63,7 +63,6 @@ class UpbitRepository(private val upbitRemoteDataSource: UpbitRemoteDataSource) 
     }
 
     override fun getTicker(
-        basePrice: Double,
         baseCurrency: String,
         coinName: String,
         success: (tickers: CompareTicker) -> Unit,
@@ -76,7 +75,7 @@ class UpbitRepository(private val upbitRemoteDataSource: UpbitRemoteDataSource) 
                 DisposableSingleObserver<List<UpbitTickerResponse>>() {
                 override fun onSuccess(tickerResponseList: List<UpbitTickerResponse>) {
                     val convertTickerList = tickerResponseList.map { tickerResponse ->
-                        tickerResponse.toCompareTicker(basePrice)
+                        tickerResponse.toCompareTicker()
                     }
                     if (convertTickerList.isNotEmpty()){
                         success(convertTickerList[0])

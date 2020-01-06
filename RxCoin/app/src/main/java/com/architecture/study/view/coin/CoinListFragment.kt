@@ -43,8 +43,19 @@ class CoinListFragment : BaseFragment<FragmentCoinlistBinding>(R.layout.fragment
             getTickerList()
 
             exceptionMessage.observe(viewLifecycleOwner, Observer {
-                    showMessage(it)
-                })
+                showMessage(it)
+            })
+
+            clickedTicker.observe(viewLifecycleOwner, Observer {
+                it.getContentIfNotHandled()?.let { clickedTicker->
+                    val intent = Intent(requireContext(), ExchangeCompareActivity::class.java).apply {
+                        putExtra(ExchangeCompareActivity.CLICKED_TICKER, clickedTicker)
+                    }
+                    startActivity(intent)
+                }
+            })
+
+
         }
     }
 

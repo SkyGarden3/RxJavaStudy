@@ -1,5 +1,6 @@
 package com.architecture.study.di
 
+import android.util.Log
 import com.architecture.study.viewmodel.ExchangeCompareViewModel
 import com.architecture.study.viewmodel.TickerViewModel
 import org.koin.androidx.viewmodel.dsl.viewModel

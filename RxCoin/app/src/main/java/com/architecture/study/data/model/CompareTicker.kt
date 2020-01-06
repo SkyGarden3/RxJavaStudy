@@ -8,7 +8,7 @@ data class CompareTicker(
     val coinName: String,
     var exchangeName: String = "",
     val nowPrice: String,
-    val comparePrice: Double,
+    var comparePrice: Double = 0.0,
     val transactionAmount: String
 ) : Parcelable {
 

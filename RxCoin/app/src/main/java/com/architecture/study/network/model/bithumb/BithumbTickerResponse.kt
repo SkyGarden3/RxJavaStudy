@@ -48,14 +48,13 @@ data class BithumbTickerResponse(
         )
     }
 
-    override fun toCompareTicker(basePrice: Double, coinName: String): CompareTicker {
+    override fun toCompareTicker(coinName: String): CompareTicker {
         val nowPrice = DecimalFormat("0.########").format(closingPrice)
         val transactionAmount = String.format("%,d", (accTradeValue24H / 1000000).toInt()) + "M"
         return CompareTicker(
             coinName = coinName,
             exchangeName = Exchange.BITHUMB.exchangeName,
             nowPrice = nowPrice,
-            comparePrice = closingPrice - basePrice,
             transactionAmount = transactionAmount
         )
     }
