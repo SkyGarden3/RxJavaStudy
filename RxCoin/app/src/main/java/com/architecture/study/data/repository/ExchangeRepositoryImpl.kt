@@ -2,9 +2,10 @@ package com.architecture.study.data.repository
 
 import com.architecture.study.data.model.CompareTicker
 
-class ExchangeRepository(private val tickerRepositoryMap: Map<String, TickerRepository>) {
+class ExchangeRepositoryImpl(private val tickerRepositoryMap: Map<String, TickerRepository>) :
+    ExchangeRepository {
 
-    fun getCompareTickerList(
+    override fun getCompareTickerList(
         clickedTicker: CompareTicker,
         success: (tickers: CompareTicker) -> Unit,
         failed: (errorCode: String) -> Unit
