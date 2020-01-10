@@ -1,6 +1,5 @@
 package com.architecture.study.data.repository
 
-import android.util.Log
 import com.architecture.study.data.model.CompareTicker
 import com.architecture.study.data.model.Ticker
 import com.architecture.study.data.source.remote.BithumbRemoteDataSource
@@ -75,7 +74,6 @@ class BithumbRepository(private val bithumbRemoteDataSource: BithumbRemoteDataSo
 
     override fun finish() {
         --subscribeCount
-        Log.e("compositeDisposable.size()", "${compositeDisposable.size()}")
         if (subscribeCount == 0) {
             compositeDisposable.clear()
         }

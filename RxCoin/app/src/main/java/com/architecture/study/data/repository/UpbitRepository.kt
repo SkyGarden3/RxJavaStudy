@@ -17,7 +17,6 @@ class UpbitRepository(private val upbitRemoteDataSource: UpbitRemoteDataSource) 
     private val compositeDisposable = CompositeDisposable()
     private var subscribeCount = 0
 
-
     override fun getAllTicker(
         baseCurrency: String?,
         success: (tickers: List<Ticker>) -> Unit,
@@ -77,8 +76,7 @@ class UpbitRepository(private val upbitRemoteDataSource: UpbitRemoteDataSource) 
                     tickerResponse.toCompareTicker()
                 }
             }
-            .subscribeWith(object :
-                DisposableSingleObserver<List<CompareTicker>>() {
+            .subscribeWith(object : DisposableSingleObserver<List<CompareTicker>>() {
                 override fun onSuccess(convertTickerList: List<CompareTicker>) {
                     if (convertTickerList.isNotEmpty()){
                         success(convertTickerList[0])
@@ -94,7 +92,6 @@ class UpbitRepository(private val upbitRemoteDataSource: UpbitRemoteDataSource) 
 
     override fun finish() {
         --subscribeCount
-        Log.e("compositeDisposable.size()", "${compositeDisposable.size()}")
         if (subscribeCount == 0) {
             compositeDisposable.clear()
         }

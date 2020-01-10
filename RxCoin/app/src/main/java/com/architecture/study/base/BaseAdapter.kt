@@ -4,6 +4,7 @@ import android.view.ViewGroup
 import androidx.annotation.LayoutRes
 import androidx.databinding.ViewDataBinding
 import androidx.recyclerview.widget.RecyclerView
+import com.architecture.study.generated.callback.OnClickListener
 
 abstract class BaseAdapter<ITEM : Any, B : ViewDataBinding>(
     @LayoutRes
@@ -11,6 +12,7 @@ abstract class BaseAdapter<ITEM : Any, B : ViewDataBinding>(
     private val dataBindingId: Int? = null
 ) : RecyclerView.Adapter<BaseViewHolder<B>>() {
     private val items = mutableListOf<ITEM>()
+    private lateinit var asmr: OnClickListener
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) =
         object : BaseViewHolder<B>(
