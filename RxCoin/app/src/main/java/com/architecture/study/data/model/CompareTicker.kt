@@ -21,13 +21,13 @@ data class CompareTicker(
             }
     }
 
-    constructor(source: Parcel): this(
-    source.readString().orEmpty(),
-    source.readString().orEmpty(),
-    source.readString().orEmpty(),
-    source.readString().orEmpty(),
-    source.readDouble(),
-    source.readString().orEmpty()
+    constructor(source: Parcel) : this(
+        source.readString().orEmpty(),
+        source.readString().orEmpty(),
+        source.readString().orEmpty(),
+        source.readString().orEmpty(),
+        source.readDouble(),
+        source.readString().orEmpty()
     )
 
     override fun describeContents() = 0
