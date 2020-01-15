@@ -7,6 +7,7 @@ import com.architecture.study.data.model.CompareTicker
 import com.architecture.study.domain.usecase.GetTicker
 import com.architecture.study.domain.usecase.UseCase
 import com.architecture.study.ext.plusAssign
+import com.architecture.study.util.Event
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -37,8 +38,8 @@ class ExchangeCompareViewModel(private val getTicker: GetTicker) :
                 }
             }
 
-            override fun onError() {
-
+            override fun onError(message: String) {
+                _exceptionMessage.value = Event(message)
             }
         }
     }
@@ -55,7 +56,7 @@ class ExchangeCompareViewModel(private val getTicker: GetTicker) :
                 getTicker.requestValues = GetTicker.RequestValues(clickedTicker)
                 getTicker.run()
             }, {
-
+                _exceptionMessage.value = Event("${it.message}")
             })
     }
 

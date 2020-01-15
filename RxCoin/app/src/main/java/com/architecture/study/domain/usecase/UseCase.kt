@@ -24,6 +24,6 @@ abstract class UseCase<Q : UseCase.RequestValues, P : UseCase.ResponseValue> {
 
     interface UseCaseCallback<R> {
         fun onSuccess(response: R)
-        fun onError()
+        fun onError(message: String)
     }
 }

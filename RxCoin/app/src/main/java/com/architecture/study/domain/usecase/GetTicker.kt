@@ -2,7 +2,6 @@ package com.architecture.study.domain.usecase
 
 import com.architecture.study.data.model.CompareTicker
 import com.architecture.study.data.repository.ExchangeRepository
-import com.architecture.study.data.repository.ExchangeRepositoryImpl
 
 class GetTicker(private val exchangeRepository: ExchangeRepository) :
     UseCase<GetTicker.RequestValues, GetTicker.ResponseValue>() {
@@ -10,12 +9,12 @@ class GetTicker(private val exchangeRepository: ExchangeRepository) :
     override fun executeUseCase(requestValues: RequestValues?) {
         requestValues?.let {
             exchangeRepository.getCompareTickerList(
-                it.clickedTicker,
+                clickedTicker = it.clickedTicker,
                 success = { compareTicker ->
                     useCaseCallback?.onSuccess(ResponseValue(compareTicker))
                 },
-                failed = {
-
+                failed = { message ->
+                    useCaseCallback?.onError(message)
                 }
             )
         }

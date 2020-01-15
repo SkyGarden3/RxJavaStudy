@@ -59,8 +59,8 @@ class TickerViewModel(private val baseCurrency: String) : BaseViewModel() {
                         _tickerList.value = response.tickerList
                     }
 
-                    override fun onError() {
-
+                    override fun onError(message: String) {
+                        _exceptionMessage.value = Event(message)
                     }
                 }
             }
@@ -73,11 +73,10 @@ class TickerViewModel(private val baseCurrency: String) : BaseViewModel() {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-
                 getAllTicker.requestValues = GetAllTicker.RequestValues(baseCurrency, onClick)
                 getAllTicker.run()
             }, {
-
+                _exceptionMessage.value = Event("${it.message}")
             })
 
     }

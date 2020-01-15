@@ -37,7 +37,7 @@ class BithumbRepository(private val bithumbRemoteDataSource: BithumbRemoteDataSo
             }
             .subscribeWith(object : DisposableSingleObserver<List<Ticker>>() {
                 override fun onSuccess(tickerList: List<Ticker>) {
-                    success(tickerList)
+                    tickerList.let(success)
                 }
 
                 override fun onError(e: Throwable) {
@@ -62,7 +62,7 @@ class BithumbRepository(private val bithumbRemoteDataSource: BithumbRemoteDataSo
             }
             .subscribeWith(object : DisposableSingleObserver<CompareTicker>() {
                 override fun onSuccess(compareTicker: CompareTicker) {
-                    success(compareTicker)
+                    compareTicker.let(success)
                 }
 
                 override fun onError(e: Throwable) {

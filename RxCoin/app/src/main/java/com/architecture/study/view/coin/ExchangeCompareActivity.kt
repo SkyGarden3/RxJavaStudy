@@ -1,6 +1,8 @@
 package com.architecture.study.view.coin
 
 import android.os.Bundle
+import android.widget.Toast
+import androidx.lifecycle.Observer
 import com.architecture.study.BR
 import com.architecture.study.R
 import com.architecture.study.base.BaseActivity
@@ -34,6 +36,16 @@ class ExchangeCompareActivity :
 
         binding.tvTitle.text = clickedTicker.coinName + "/" + clickedTicker.baseCurrency
         viewModel.getCompareTickerList(clickedTicker)
+
+        viewModel.exceptionMessage.observe(this, Observer {
+            it.getContentIfNotHandled()?.let {message->
+                showMessage(message)
+            }
+        })
+    }
+
+    private fun showMessage(message: String) {
+        Toast.makeText(this, message, Toast.LENGTH_SHORT).show()
     }
 
 

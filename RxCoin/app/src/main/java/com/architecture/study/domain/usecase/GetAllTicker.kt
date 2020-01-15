@@ -9,13 +9,16 @@ class GetAllTicker(private val tickerRepository: TickerRepository) :
     override fun executeUseCase(requestValues: RequestValues?) {
         requestValues?.let {
             tickerRepository.getAllTicker(
-                it.baseCurrency, { tickerList ->
+                baseCurrency = it.baseCurrency,
+                success = { tickerList ->
                     useCaseCallback?.onSuccess(ResponseValue(tickerList))
                     tickerRepository.finish()
-                }, {
+                },
+                failed = { message ->
+                    useCaseCallback?.onError(message)
                     tickerRepository.finish()
                 },
-                requestValues.onClick
+                onClick = requestValues.onClick
             )
         }
     }
