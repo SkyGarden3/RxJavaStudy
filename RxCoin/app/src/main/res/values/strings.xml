@@ -14,4 +14,5 @@
     <string name="bithumb">Bithumb</string>
     <string name="compare_price">가격차이</string>
     <string name="exchange_name">거래소명</string>
+    <string name="coinone">Coinone</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.architecture.study.view.coin
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.widget.Toast
 import androidx.lifecycle.Observer
@@ -18,6 +19,7 @@ class ExchangeCompareActivity :
 
     private val viewModel by viewModel<ExchangeCompareViewModel>()
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding.run {

@@ -93,7 +93,7 @@ data class UpbitTickerResponse(
 
         return when (market.split("-")[0]) {
             "KRW" -> {
-                String.format("%,d", (accTradePrice24h / 1000000).toInt()) + "M"
+                String.format("%,d", (accTradePrice24h / 1_000_000L).toInt()) + "M"
             }
             "BTC" -> {
                 String.format(

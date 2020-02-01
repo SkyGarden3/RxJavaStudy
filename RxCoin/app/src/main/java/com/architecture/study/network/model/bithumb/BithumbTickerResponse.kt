@@ -37,7 +37,7 @@ data class BithumbTickerResponse(
 
     override fun toTicker(onClick: (ticker: Ticker) -> Unit, coinName: String): Ticker {
         val nowPrice = DecimalFormat("0.########").format(closingPrice)
-        val transactionAmount = String.format("%,d", (accTradeValue24H / 1000000).toInt()) + "M"
+        val transactionAmount = String.format("%,d", (accTradeValue24H / 1_000_000L).toInt()) + "M"
 
         return Ticker(
             coinName,
@@ -50,7 +50,7 @@ data class BithumbTickerResponse(
 
     override fun toCompareTicker(coinName: String): CompareTicker {
         val nowPrice = DecimalFormat("0.########").format(closingPrice)
-        val transactionAmount = String.format("%,d", (accTradeValue24H / 1000000).toInt()) + "M"
+        val transactionAmount = String.format("%,d", (accTradeValue24H / 1_000_000L).toInt()) + "M"
         return CompareTicker(
             coinName = coinName,
             exchangeName = Exchange.BITHUMB.exchangeName,

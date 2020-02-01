@@ -56,7 +56,8 @@ class TickerViewModel(private val baseCurrency: String) : BaseViewModel() {
             .apply {
                 useCaseCallback = object : UseCase.UseCaseCallback<GetAllTicker.ResponseValue> {
                     override fun onSuccess(response: GetAllTicker.ResponseValue) {
-                        _tickerList.value = response.tickerList
+                        val sortedList = response.tickerList.sortedByDescending { it.nowPrice.toDouble() }
+                        _tickerList.value = sortedList
                     }
 
                     override fun onError(message: String) {
