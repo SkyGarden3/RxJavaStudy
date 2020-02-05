@@ -16,9 +16,6 @@ class CoinListActivity : BaseActivity<ActivityCoinBinding>(R.layout.activity_coi
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        get<CoinoneRemoteDataSource>().getTickerList()
-
-
         initView()
         binding.rbUpbit.isChecked = true
     }

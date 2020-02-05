@@ -2,17 +2,20 @@ package com.architecture.study.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.architecture.study.App
 import com.architecture.study.base.BaseViewModel
+import com.architecture.study.data.Result.Error
+import com.architecture.study.data.Result.Success
 import com.architecture.study.data.model.CompareTicker
 import com.architecture.study.data.model.Ticker
 import com.architecture.study.domain.usecase.GetAllTicker
-import com.architecture.study.domain.usecase.UseCase
 import com.architecture.study.ext.plusAssign
 import com.architecture.study.util.Event
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.launch
 import org.koin.android.ext.android.get
 import org.koin.core.parameter.parametersOf
 import java.util.concurrent.TimeUnit
@@ -46,25 +49,13 @@ class TickerViewModel(private val baseCurrency: String) : BaseViewModel() {
     }
 
     fun start(currentExchange: String) {
+
         this.currentExchange = currentExchange
         initUseCase(currentExchange)
     }
 
     private fun initUseCase(currentExchange: String) {
-        getAllTicker = App.instance
-            .get<GetAllTicker> { parametersOf(currentExchange) }
-            .apply {
-                useCaseCallback = object : UseCase.UseCaseCallback<GetAllTicker.ResponseValue> {
-                    override fun onSuccess(response: GetAllTicker.ResponseValue) {
-                        val sortedList = response.tickerList.sortedByDescending { it.nowPrice.toDouble() }
-                        _tickerList.value = sortedList
-                    }
-
-                    override fun onError(message: String) {
-                        _exceptionMessage.value = Event(message)
-                    }
-                }
-            }
+        getAllTicker = App.instance.get { parametersOf(currentExchange) }
     }
 
     fun getTickerList() {
@@ -74,8 +65,22 @@ class TickerViewModel(private val baseCurrency: String) : BaseViewModel() {
             .subscribeOn(Schedulers.io())
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
-                getAllTicker.requestValues = GetAllTicker.RequestValues(baseCurrency, onClick)
-                getAllTicker.run()
+
+                viewModelScope.launch {
+
+                    val tickerResult = getAllTicker(baseCurrency, onClick)
+
+                    (tickerResult as? Success)?.data?.let { tickerList ->
+                        val sortedList = tickerList.sortedByDescending { it.nowPrice.toDouble() }
+                        _tickerList.value = sortedList
+                    } ?: run {
+                        if (tickerResult is Error) {
+                            _exceptionMessage.value =
+                                Event(tickerResult.exception.message.orEmpty())
+                        }
+                    }
+                }
+
             }, {
                 _exceptionMessage.value = Event("${it.message}")
             })

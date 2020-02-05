@@ -29,8 +29,10 @@ task clean(type: Delete) {
 
 
 ext {
-    retrofitVersion = '2.3.0'
+    retrofitVersion = '2.6.0'
     koinVersion = '2.0.1'
     rxAndroidVersion = '2.1.1'
     rxJavaVersion = '2.2.15'
+    coroutinesVersion = '1.2.1'
+    archLifecycleVersion = '2.2.0'
 }

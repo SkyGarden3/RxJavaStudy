@@ -5,7 +5,6 @@ import androidx.lifecycle.MutableLiveData
 import com.architecture.study.base.BaseViewModel
 import com.architecture.study.data.model.CompareTicker
 import com.architecture.study.domain.usecase.GetTicker
-import com.architecture.study.domain.usecase.UseCase
 import com.architecture.study.ext.plusAssign
 import com.architecture.study.util.Event
 import io.reactivex.Observable
@@ -22,26 +21,20 @@ class ExchangeCompareViewModel(private val getTicker: GetTicker) :
 
     private lateinit var lastClickedTicker: CompareTicker
 
-    init {
-        getTicker.useCaseCallback = object : UseCase.UseCaseCallback<GetTicker.ResponseValue> {
-            override fun onSuccess(response: GetTicker.ResponseValue) {
-
-                val addedTickerList = mutableListOf<CompareTicker>()
-                compareTickerList.value?.let {
-                    addedTickerList.addAll(it)
-                }
-                addedTickerList.add(response.compareTicker)
-                _compareTickerList.value = addedTickerList
-
-                if (::lastClickedTicker.isInitialized) {
-                    setComparePriceTickerList(lastClickedTicker.exchangeName)
-                }
-            }
-
-            override fun onError(message: String) {
-                _exceptionMessage.value = Event(message)
-            }
+    private val success: (tickers: CompareTicker) -> Unit = { compareTicker ->
+        val addedTickerList = mutableListOf<CompareTicker>()
+        compareTickerList.value?.let {
+            addedTickerList.addAll(it)
         }
+        addedTickerList.add(compareTicker)
+        _compareTickerList.value = addedTickerList
+
+        if (::lastClickedTicker.isInitialized) {
+            setComparePriceTickerList(lastClickedTicker.exchangeName)
+        }
+    }
+    private val failed: (errorCode: String) -> Unit = { message ->
+        _exceptionMessage.value = Event(message)
     }
 
     fun getCompareTickerList(clickedTicker: CompareTicker) {
@@ -53,8 +46,7 @@ class ExchangeCompareViewModel(private val getTicker: GetTicker) :
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 _compareTickerList.value = listOf()
-                getTicker.requestValues = GetTicker.RequestValues(clickedTicker)
-                getTicker.run()
+                getTicker(clickedTicker, success, failed)
             }, {
                 _exceptionMessage.value = Event("${it.message}")
             })

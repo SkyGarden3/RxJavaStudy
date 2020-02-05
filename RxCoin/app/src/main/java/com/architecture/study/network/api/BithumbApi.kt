@@ -8,11 +8,11 @@ import retrofit2.http.Path
 
 interface BithumbApi {
     @GET("/public/ticker/all")
-    fun getAllTicker(): Single<BithumbResponse>
+    suspend fun getAllTicker(): BithumbResponse
 
     @GET("/public/ticker/{order_currency}_{payment_currency}")
-    fun getTicker(
+    suspend fun getTicker(
         @Path("order_currency") orderCurrency: String,
         @Path("payment_currency") paymentCurrency: String
-    ): Single<BithumbSingleResponse>
+    ): BithumbSingleResponse
 }

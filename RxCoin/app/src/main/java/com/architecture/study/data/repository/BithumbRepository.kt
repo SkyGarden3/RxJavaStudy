@@ -1,81 +1,73 @@
 package com.architecture.study.data.repository
 
+import com.architecture.study.data.Result
+import com.architecture.study.data.Result.Error
+import com.architecture.study.data.Result.Success
 import com.architecture.study.data.model.CompareTicker
 import com.architecture.study.data.model.Ticker
 import com.architecture.study.data.source.remote.BithumbRemoteDataSource
-import com.architecture.study.ext.plusAssign
 import com.architecture.study.network.model.bithumb.BithumbTickerResponse
 import com.google.gson.Gson
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.observers.DisposableSingleObserver
-import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
-class BithumbRepository(private val bithumbRemoteDataSource: BithumbRemoteDataSource) :
+@Suppress("UNREACHABLE_CODE")
+class BithumbRepository(
+    private val bithumbRemoteDataSource: BithumbRemoteDataSource,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
+) :
     TickerRepository {
 
-    private val compositeDisposable = CompositeDisposable()
-    private var subscribeCount = 0
-
-    override fun getAllTicker(
+    override suspend fun getAllTicker(
         baseCurrency: String?,
-        success: (tickers: List<Ticker>) -> Unit,
-        failed: (errorCode: String) -> Unit,
         onClick: (ticker: Ticker) -> Unit
-    ) {
-        compositeDisposable += bithumbRemoteDataSource.getTickerList()
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .map { response ->
+    ): Result<List<Ticker>> {
+
+
+        return withContext(ioDispatcher) {
+            // Respond immediately with cache if available
+            val resultResponse = bithumbRemoteDataSource.getTickerList()
+
+            // Refresh the cache with the new tasks
+            (resultResponse as? Success)?.let {
                 val gson = Gson()
-                response.tickerResponse
+                val tickerList = it.data.tickerResponse
                     .filter { it.key != "date" }
                     .map { (currency, tickerResponse) ->
-                        gson.fromJson(tickerResponse.toString(), BithumbTickerResponse::class.java)
+                        gson.fromJson(
+                            tickerResponse.toString(),
+                            BithumbTickerResponse::class.java
+                        )
                             .toTicker(onClick, currency)
                     }
+                return@withContext Success(tickerList)
+            } ?: run {
+                return@withContext resultResponse as Error
             }
-            .subscribeWith(object : DisposableSingleObserver<List<Ticker>>() {
-                override fun onSuccess(tickerList: List<Ticker>) {
-                    tickerList.let(success)
-                }
-
-                override fun onError(e: Throwable) {
-                    e.message?.let(failed)
-                }
-            })
-        ++subscribeCount
+        }
     }
 
-    override fun getTicker(
+    override suspend fun getTicker(
         baseCurrency: String,
-        coinName: String,
-        success: (ticker: CompareTicker) -> Unit,
-        failed: (errorCode: String) -> Unit
-    ) {
-        compositeDisposable += bithumbRemoteDataSource
-            .getTicker(orderCurrency = coinName, paymentCurrency = baseCurrency)
-            .subscribeOn(Schedulers.io())
-            .observeOn(AndroidSchedulers.mainThread())
-            .map { response ->
-                response.tickerResponse.toCompareTicker(coinName)
-            }
-            .subscribeWith(object : DisposableSingleObserver<CompareTicker>() {
-                override fun onSuccess(compareTicker: CompareTicker) {
-                    compareTicker.let(success)
-                }
+        coinName: String
+    ): Result<CompareTicker> {
+        return withContext(ioDispatcher) {
+            val resultResponse =
+                bithumbRemoteDataSource.getTicker(
+                    orderCurrency = coinName,
+                    paymentCurrency = baseCurrency
+                )
 
-                override fun onError(e: Throwable) {
-                    e.message?.let(failed)
-                }
-            })
-        ++subscribeCount
+            (resultResponse as? Success)?.data?.let {
+                return@withContext Success(it.tickerResponse.toCompareTicker(coinName))
+            } ?: run {
+                return@withContext resultResponse as Error
+            }
+
+        }
     }
 
     override fun finish() {
-        --subscribeCount
-        if (subscribeCount == 0) {
-            compositeDisposable.clear()
-        }
     }
 }

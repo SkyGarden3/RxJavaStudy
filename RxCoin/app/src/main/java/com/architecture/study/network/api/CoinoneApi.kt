@@ -8,8 +8,8 @@ import retrofit2.http.Query
 interface CoinoneApi {
 
     @GET("/ticker?currency=all")
-    fun getAllTicker(): Single<Map<String, Any>>
+    suspend fun getAllTicker(): Map<String, Any>
 
     @GET("/ticker")
-    fun getTicker(@Query("currency") currency: String): Single<CoinoneResponse>
+    suspend fun getTicker(@Query("currency") currency: String): CoinoneResponse
 }

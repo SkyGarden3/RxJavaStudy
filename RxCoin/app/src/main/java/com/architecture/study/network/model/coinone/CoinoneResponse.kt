@@ -9,7 +9,7 @@ import com.google.gson.annotations.SerializedName
 
 data class CoinoneResponse(
     @SerializedName("currency")
-    val currency: String,
+    val currency: String?,
     @SerializedName("first")
     val first: Double,
     @SerializedName("high")
@@ -35,7 +35,7 @@ data class CoinoneResponse(
         val diff = (last - first) / first * 100
         val transactionAmount = String.format("%,d", ((volume * last) / 1_000_000L).toInt())
         return Ticker(
-            currency.toUpperCase(),
+            currency?.toUpperCase() ?: "",
             last.toInt().toString(),
             diff,
             "${transactionAmount}M",
@@ -46,7 +46,7 @@ data class CoinoneResponse(
     override fun toCompareTicker(coinName: String): CompareTicker {
         val transactionAmount = String.format("%,d", ((volume * last) / 1_000_000L).toInt())
         return CompareTicker(
-            coinName = currency,
+            coinName = currency ?: "",
             exchangeName = Exchange.COINONE.exchangeName,
             nowPrice = last.toInt().toString(),
             transactionAmount = "${transactionAmount}M"

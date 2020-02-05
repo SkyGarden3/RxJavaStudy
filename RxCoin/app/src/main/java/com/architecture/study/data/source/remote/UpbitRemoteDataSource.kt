@@ -1,11 +1,11 @@
 package com.architecture.study.data.source.remote
 
+import com.architecture.study.data.Result
 import com.architecture.study.network.model.upbit.UpbitMarketResponse
 import com.architecture.study.network.model.upbit.UpbitTickerResponse
-import io.reactivex.Single
 
 interface UpbitRemoteDataSource {
-    fun getMarketList(): Single<List<UpbitMarketResponse>>
+    suspend fun getMarketList(): Result<List<UpbitMarketResponse>>
 
-    fun getTickerList(marketNames: String): Single<List<UpbitTickerResponse>>
+    suspend fun getTickerList(marketNames: String): Result<List<UpbitTickerResponse>>
 }

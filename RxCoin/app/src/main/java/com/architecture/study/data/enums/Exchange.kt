@@ -6,6 +6,10 @@ enum class Exchange(val exchangeName: String, val baseCurrencies: List<String>) 
     COINONE("Coinone", listOf("KRW"))
 }
 
+fun getBaseCurrencies(exchangeName: String): List<String>? {
+    return Exchange.values().find { it.exchangeName == exchangeName }?.baseCurrencies
+}
+
 
 
 
