@@ -1,23 +1,21 @@
 package com.architecture.study.data.repository
 
-import com.architecture.study.data.Result.Error
-import com.architecture.study.data.Result.Success
+import com.architecture.study.data.Result
 import com.architecture.study.data.enums.getBaseCurrencies
 import com.architecture.study.data.model.CompareTicker
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class ExchangeRepositoryImpl(private val tickerRepositoryMap: Map<String, TickerRepository>) :
     ExchangeRepository {
 
-    override fun getCompareTickerList(
+    override suspend fun getCompareTickerList(
         clickedTicker: CompareTicker,
-        success: (tickers: CompareTicker) -> Unit,
-        failed: (errorCode: String) -> Unit
+        callback: (result: Result<CompareTicker>) -> Unit
     ) {
+
         tickerRepositoryMap.forEach { (exchange, repository) ->
-            CoroutineScope(Dispatchers.IO).launch {
+            withContext(Dispatchers.IO) {
                 getBaseCurrencies(exchange)?.contains(clickedTicker.baseCurrency)
                     ?.let { isContains ->
                         if (isContains) {
@@ -25,16 +23,13 @@ class ExchangeRepositoryImpl(private val tickerRepositoryMap: Map<String, Ticker
                                 baseCurrency = clickedTicker.baseCurrency,
                                 coinName = clickedTicker.coinName
                             )
-                            CoroutineScope(Dispatchers.Main).launch {
-                                (compareTickerResult as? Success)?.data?.let {
-                                    success.invoke(it)
-                                } ?: run {
-                                    failed.invoke((compareTickerResult as Error).exception.message.orEmpty())
-                                }
+                            withContext(Dispatchers.Main) {
+                                callback(compareTickerResult)
                             }
                         }
                     }
             }
         }
     }
+
 }

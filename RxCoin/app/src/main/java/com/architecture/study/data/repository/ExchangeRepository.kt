@@ -1,11 +1,11 @@
 package com.architecture.study.data.repository
 
 import com.architecture.study.data.model.CompareTicker
+import com.architecture.study.data.Result
 
 interface ExchangeRepository {
-    fun getCompareTickerList(
+    suspend fun getCompareTickerList(
         clickedTicker: CompareTicker,
-        success: (tickers: CompareTicker) -> Unit,
-        failed: (errorCode: String) -> Unit
+        callback: (result: Result<CompareTicker>) -> Unit
     )
 }

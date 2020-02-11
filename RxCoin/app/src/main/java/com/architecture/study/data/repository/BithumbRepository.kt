@@ -12,7 +12,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
-@Suppress("UNREACHABLE_CODE")
 class BithumbRepository(
     private val bithumbRemoteDataSource: BithumbRemoteDataSource,
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
@@ -26,10 +25,9 @@ class BithumbRepository(
 
 
         return withContext(ioDispatcher) {
-            // Respond immediately with cache if available
+
             val resultResponse = bithumbRemoteDataSource.getTickerList()
 
-            // Refresh the cache with the new tasks
             (resultResponse as? Success)?.let {
                 val gson = Gson()
                 val tickerList = it.data.tickerResponse
@@ -39,7 +37,9 @@ class BithumbRepository(
                             tickerResponse.toString(),
                             BithumbTickerResponse::class.java
                         )
-                            .toTicker(onClick, currency)
+                            .toTicker(onClick).apply {
+                                coinName = currency
+                            }
                     }
                 return@withContext Success(tickerList)
             } ?: run {
@@ -60,14 +60,13 @@ class BithumbRepository(
                 )
 
             (resultResponse as? Success)?.data?.let {
-                return@withContext Success(it.tickerResponse.toCompareTicker(coinName))
+                return@withContext Success(it.tickerResponse.toCompareTicker().apply {
+                    this.coinName = coinName
+                })
             } ?: run {
                 return@withContext resultResponse as Error
             }
 
         }
-    }
-
-    override fun finish() {
     }
 }

@@ -71,8 +71,4 @@ class UpbitRepository(
 
         }
     }
-
-    override fun finish() {
-
-    }
 }

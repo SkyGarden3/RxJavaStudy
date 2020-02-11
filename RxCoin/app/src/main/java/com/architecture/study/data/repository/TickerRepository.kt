@@ -14,6 +14,4 @@ interface TickerRepository {
         baseCurrency: String,
         coinName: String
     ): Result<CompareTicker>
-
-    fun finish()
 }

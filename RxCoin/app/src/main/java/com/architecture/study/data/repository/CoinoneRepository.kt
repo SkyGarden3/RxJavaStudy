@@ -33,7 +33,7 @@ class CoinoneRepository(
 
             (resultResponse as? Success)?.let {
                 if (it.data["errorCode"] != "0") {
-                    return@withContext Error(error(it.data["errorCode"].toString()))
+                    return@withContext error(it.data["errorCode"].toString())
                 }
 
                 val gson = Gson()
@@ -70,6 +70,4 @@ class CoinoneRepository(
         }
     }
 
-    override fun finish() {
-    }
 }
