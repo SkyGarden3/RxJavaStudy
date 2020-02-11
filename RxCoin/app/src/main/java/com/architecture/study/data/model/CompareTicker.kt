@@ -5,7 +5,7 @@ import android.os.Parcelable
 
 data class CompareTicker(
     var baseCurrency: String = "",
-    val coinName: String,
+    var coinName: String = "",
     var exchangeName: String = "",
     val nowPrice: String,
     var comparePrice: Double = 0.0,

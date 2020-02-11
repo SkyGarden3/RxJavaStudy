@@ -1,7 +1,7 @@
 package com.architecture.study.data.model
 
 interface TickerProvider {
-    fun toTicker(onClick: (ticker: Ticker) -> Unit, coinName: String = ""): Ticker
+    fun toTicker(onClick: (ticker: Ticker) -> Unit): Ticker
 
-    fun toCompareTicker(coinName: String = ""): CompareTicker
+    fun toCompareTicker(): CompareTicker
 }

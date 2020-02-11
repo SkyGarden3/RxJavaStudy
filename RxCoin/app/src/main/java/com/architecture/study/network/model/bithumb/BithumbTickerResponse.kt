@@ -5,6 +5,7 @@ import com.architecture.study.data.enums.Exchange
 import com.architecture.study.data.model.CompareTicker
 import com.architecture.study.data.model.Ticker
 import com.architecture.study.data.model.TickerProvider
+import com.architecture.study.ext.getAmount
 import com.google.gson.annotations.SerializedName
 import java.text.DecimalFormat
 
@@ -35,27 +36,18 @@ data class BithumbTickerResponse(
     val unitsTraded24H: String
 ) : TickerProvider {
 
-    override fun toTicker(onClick: (ticker: Ticker) -> Unit, coinName: String): Ticker {
-        val nowPrice = DecimalFormat("0.########").format(closingPrice)
-        val transactionAmount = String.format("%,d", (accTradeValue24H / 1_000_000L).toInt()) + "M"
-
-        return Ticker(
-            coinName,
-            nowPrice,
-            fluctateRate24H,
-            transactionAmount,
-            onClick
+    override fun toTicker(onClick: (ticker: Ticker) -> Unit) =
+        Ticker(
+            nowPrice = DecimalFormat("0.########").format(closingPrice),
+            compareYesterday = fluctateRate24H,
+            transactionAmount = getAmount(accTradeValue24H, "KRW"),
+            onClick = onClick
         )
-    }
 
-    override fun toCompareTicker(coinName: String): CompareTicker {
-        val nowPrice = DecimalFormat("0.########").format(closingPrice)
-        val transactionAmount = String.format("%,d", (accTradeValue24H / 1_000_000L).toInt()) + "M"
-        return CompareTicker(
-            coinName = coinName,
+    override fun toCompareTicker(): CompareTicker =
+        CompareTicker(
             exchangeName = Exchange.BITHUMB.exchangeName,
-            nowPrice = nowPrice,
-            transactionAmount = transactionAmount
+            nowPrice = DecimalFormat("0.########").format(closingPrice),
+            transactionAmount = getAmount(accTradeValue24H, "KRW")
         )
-    }
 }

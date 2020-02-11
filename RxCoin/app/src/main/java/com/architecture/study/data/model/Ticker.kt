@@ -1,19 +1,19 @@
 package com.architecture.study.data.model
 
 data class Ticker(
-    val coinName: String = "",
+    var coinName: String = "",
     val nowPrice: String,
     val compareYesterday: Double,
     val transactionAmount: String,
     val onClick: (ticker: Ticker) -> Unit
 ) : TickerProvider {
-    override fun toTicker(onClick: (ticker: Ticker) -> Unit, coinName: String): Ticker =
+    override fun toTicker(onClick: (ticker: Ticker) -> Unit): Ticker =
         this
 
 
-    override fun toCompareTicker(coinName: String): CompareTicker =
+    override fun toCompareTicker(): CompareTicker =
         CompareTicker(
-            coinName = this.coinName,
+            coinName = coinName,
             nowPrice = nowPrice,
             transactionAmount = transactionAmount
         )
