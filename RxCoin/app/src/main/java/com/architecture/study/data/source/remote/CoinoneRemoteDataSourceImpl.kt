@@ -5,8 +5,8 @@ import com.architecture.study.data.Result.Error
 import com.architecture.study.data.Result.Success
 import com.architecture.study.network.api.CoinoneApi
 import com.architecture.study.network.model.coinone.CoinoneResponse
+import kotlinx.coroutines.Dispatchers
 
-@Suppress("UNREACHABLE_CODE")
 class CoinoneRemoteDataSourceImpl(private val coinoneApi: CoinoneApi) : CoinoneRemoteDataSource {
 
     override suspend fun getTickerList(): Result<Map<String, Any>> {
@@ -22,8 +22,7 @@ class CoinoneRemoteDataSourceImpl(private val coinoneApi: CoinoneApi) : CoinoneR
             val coinoneResponse = coinoneApi.getTicker(currency)
             coinoneResponse.currency?.let {
                 Success(coinoneResponse)
-            } ?: Error(error("empty"))
-
+            } ?: Error(Exception("not found coin : Coinone"))
         } catch (e: Exception) {
             Error(e)
         }
