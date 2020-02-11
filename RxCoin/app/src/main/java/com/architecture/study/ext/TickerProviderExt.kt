@@ -1,6 +1,6 @@
 package com.architecture.study.ext
 
-import com.architecture.study.data.model.TickerProvider
+import com.architecture.study.domain.model.TickerProvider
 
 fun TickerProvider.getAmount(accTradePrice24h: Double, marketName: String): String =
     when (marketName) {

@@ -5,13 +5,13 @@ import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.viewModelScope
 import com.architecture.study.App
 import com.architecture.study.base.BaseViewModel
-import com.architecture.study.data.Result.Error
-import com.architecture.study.data.Result.Success
-import com.architecture.study.data.model.CompareTicker
-import com.architecture.study.data.model.Ticker
+import com.architecture.study.util.Result.Error
+import com.architecture.study.util.Result.Success
 import com.architecture.study.domain.usecase.GetAllTicker
 import com.architecture.study.ext.plusAssign
 import com.architecture.study.util.Event
+import com.architecture.study.view.coin.model.CompareTickerItem
+import com.architecture.study.view.coin.model.TickerItem
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
@@ -25,12 +25,12 @@ class TickerViewModel(private val baseCurrency: String) : BaseViewModel() {
 
     private val context = App.instance.context()
 
-    private val _tickerList = MutableLiveData<List<Ticker>>()
-    val tickerList: LiveData<List<Ticker>>
+    private val _tickerList = MutableLiveData<List<TickerItem>>()
+    val tickerList: LiveData<List<TickerItem>>
         get() = _tickerList
 
-    private val _clickedTicker = MutableLiveData<Event<CompareTicker>>()
-    val clickedTicker: LiveData<Event<CompareTicker>>
+    private val _clickedTicker = MutableLiveData<Event<CompareTickerItem>>()
+    val clickedTicker: LiveData<Event<CompareTickerItem>>
         get() = _clickedTicker
 
 
@@ -38,13 +38,10 @@ class TickerViewModel(private val baseCurrency: String) : BaseViewModel() {
 
     private var currentExchange = ""
 
-    private val onClick: (ticker: Ticker) -> Unit = { ticker ->
+    private val onClick: (ticker: TickerItem) -> Unit = { tickerItem ->
         _clickedTicker.value =
             Event(
-                ticker.toCompareTicker().apply {
-                    baseCurrency = this@TickerViewModel.baseCurrency
-                    exchangeName = currentExchange
-                }
+                CompareTickerItem.of(tickerItem, baseCurrency, currentExchange)
             )
     }
 
@@ -68,11 +65,13 @@ class TickerViewModel(private val baseCurrency: String) : BaseViewModel() {
 
                 viewModelScope.launch {
 
-                    val tickerResult = getAllTicker(baseCurrency, onClick)
+                    val tickerResult = getAllTicker(baseCurrency)
 
                     (tickerResult as? Success)?.data?.let { tickerList ->
                         val sortedList = tickerList.sortedByDescending { it.nowPrice.toDouble() }
-                        _tickerList.value = sortedList
+                        _tickerList.value = sortedList.map { ticker ->
+                            TickerItem.of(ticker, onClick)
+                        }
                     } ?: run {
                         if (tickerResult is Error) {
                             _exceptionMessage.value =

@@ -14,9 +14,9 @@
  * limitations under the License.
  */
 
-package com.architecture.study.data
+package com.architecture.study.util
 
-import com.architecture.study.data.Result.Success
+import com.architecture.study.util.Result.Success
 /**
  * A generic class that holds a value with its loading status.
  * @param <T>

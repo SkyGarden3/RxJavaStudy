@@ -1,17 +1,19 @@
 package com.architecture.study.domain.usecase
 
-import com.architecture.study.data.Result
-import com.architecture.study.data.model.CompareTicker
-import com.architecture.study.data.repository.ExchangeRepository
+import com.architecture.study.util.Result
+import com.architecture.study.domain.model.CompareTicker
+import com.architecture.study.domain.repository.ExchangeRepository
 
 class GetTicker(private val exchangeRepository: ExchangeRepository) {
 
     suspend operator fun invoke(
-        clickedTicker: CompareTicker,
+        baseCurrency: String,
+        coinName: String,
         callback: (result: Result<CompareTicker>) -> Unit
     ) {
         exchangeRepository.getCompareTickerList(
-            clickedTicker = clickedTicker,
+            baseCurrency = baseCurrency,
+            coinName = coinName,
             callback = callback
         )
     }

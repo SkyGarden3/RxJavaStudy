@@ -1,15 +1,12 @@
 package com.architecture.study.network.model.upbit
 
-import android.util.Log
-import com.architecture.study.R
-import com.architecture.study.data.enums.Exchange
-import com.architecture.study.data.model.CompareTicker
-import com.architecture.study.data.model.Ticker
-import com.architecture.study.data.model.TickerProvider
+import com.architecture.study.util.enums.Exchange
+import com.architecture.study.domain.model.CompareTicker
+import com.architecture.study.domain.model.Ticker
+import com.architecture.study.domain.model.TickerProvider
 import com.architecture.study.ext.getAmount
 import com.google.gson.annotations.SerializedName
 import java.text.DecimalFormat
-import kotlin.math.ulp
 
 
 data class UpbitTickerResponse(
@@ -67,13 +64,12 @@ data class UpbitTickerResponse(
     val tradeVolume: Double
 ): TickerProvider {
 
-    override fun toTicker(onClick: (ticker: Ticker) -> Unit) =
+    override fun toTicker() =
         Ticker(
             coinName = market.split("-")[1],
             nowPrice = DecimalFormat("0.########").format(tradePrice),
             compareYesterday = ((tradePrice / prevClosingPrice) - 1) * 100,
-            transactionAmount = getAmount(accTradePrice24h, market.split("-")[0]),
-            onClick = onClick
+            transactionAmount = getAmount(accTradePrice24h, market.split("-")[0])
         )
 
     override fun toCompareTicker() =

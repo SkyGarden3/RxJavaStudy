@@ -1,8 +1,10 @@
 package com.architecture.study.data.repository
 
-import com.architecture.study.data.Result
-import com.architecture.study.data.enums.getBaseCurrencies
-import com.architecture.study.data.model.CompareTicker
+import com.architecture.study.util.Result
+import com.architecture.study.util.enums.getBaseCurrencies
+import com.architecture.study.domain.model.CompareTicker
+import com.architecture.study.domain.repository.ExchangeRepository
+import com.architecture.study.domain.repository.TickerRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -10,18 +12,19 @@ class ExchangeRepositoryImpl(private val tickerRepositoryMap: Map<String, Ticker
     ExchangeRepository {
 
     override suspend fun getCompareTickerList(
-        clickedTicker: CompareTicker,
+        baseCurrency: String,
+        coinName: String,
         callback: (result: Result<CompareTicker>) -> Unit
     ) {
 
         tickerRepositoryMap.forEach { (exchange, repository) ->
             withContext(Dispatchers.IO) {
-                getBaseCurrencies(exchange)?.contains(clickedTicker.baseCurrency)
+                getBaseCurrencies(exchange)?.contains(baseCurrency)
                     ?.let { isContains ->
                         if (isContains) {
                             val compareTickerResult = repository.getTicker(
-                                baseCurrency = clickedTicker.baseCurrency,
-                                coinName = clickedTicker.coinName
+                                baseCurrency = baseCurrency,
+                                coinName = coinName
                             )
                             withContext(Dispatchers.Main) {
                                 callback(compareTickerResult)

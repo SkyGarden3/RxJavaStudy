@@ -1,4 +1,4 @@
-package com.architecture.study.data.enums
+package com.architecture.study.util.enums
 
 enum class Exchange(val exchangeName: String, val baseCurrencies: List<String>) {
     UPBIT("Upbit", listOf("KRW", "BTC", "USDT")),

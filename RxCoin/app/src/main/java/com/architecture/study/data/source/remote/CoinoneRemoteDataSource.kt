@@ -1,8 +1,7 @@
 package com.architecture.study.data.source.remote
 
-import com.architecture.study.data.Result
+import com.architecture.study.util.Result
 import com.architecture.study.network.model.coinone.CoinoneResponse
-import io.reactivex.Single
 
 interface CoinoneRemoteDataSource {
     suspend fun getTickerList(): Result<Map<String, Any>>

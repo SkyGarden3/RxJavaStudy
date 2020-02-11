@@ -1,11 +1,12 @@
 package com.architecture.study.data.repository
 
-import com.architecture.study.data.Result
-import com.architecture.study.data.Result.Error
-import com.architecture.study.data.Result.Success
-import com.architecture.study.data.model.CompareTicker
-import com.architecture.study.data.model.Ticker
+import com.architecture.study.util.Result
+import com.architecture.study.util.Result.Error
+import com.architecture.study.util.Result.Success
+import com.architecture.study.domain.model.CompareTicker
+import com.architecture.study.domain.model.Ticker
 import com.architecture.study.data.source.remote.BithumbRemoteDataSource
+import com.architecture.study.domain.repository.TickerRepository
 import com.architecture.study.network.model.bithumb.BithumbTickerResponse
 import com.google.gson.Gson
 import kotlinx.coroutines.CoroutineDispatcher
@@ -18,10 +19,7 @@ class BithumbRepository(
 ) :
     TickerRepository {
 
-    override suspend fun getAllTicker(
-        baseCurrency: String?,
-        onClick: (ticker: Ticker) -> Unit
-    ): Result<List<Ticker>> {
+    override suspend fun getAllTicker(baseCurrency: String?): Result<List<Ticker>> {
 
 
         return withContext(ioDispatcher) {
@@ -37,7 +35,7 @@ class BithumbRepository(
                             tickerResponse.toString(),
                             BithumbTickerResponse::class.java
                         )
-                            .toTicker(onClick).apply {
+                            .toTicker().apply {
                                 coinName = currency
                             }
                     }

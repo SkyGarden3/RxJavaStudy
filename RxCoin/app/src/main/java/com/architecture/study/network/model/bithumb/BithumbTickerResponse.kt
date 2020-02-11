@@ -1,10 +1,10 @@
 package com.architecture.study.network.model.bithumb
 
 
-import com.architecture.study.data.enums.Exchange
-import com.architecture.study.data.model.CompareTicker
-import com.architecture.study.data.model.Ticker
-import com.architecture.study.data.model.TickerProvider
+import com.architecture.study.util.enums.Exchange
+import com.architecture.study.domain.model.CompareTicker
+import com.architecture.study.domain.model.Ticker
+import com.architecture.study.domain.model.TickerProvider
 import com.architecture.study.ext.getAmount
 import com.google.gson.annotations.SerializedName
 import java.text.DecimalFormat
@@ -36,12 +36,11 @@ data class BithumbTickerResponse(
     val unitsTraded24H: String
 ) : TickerProvider {
 
-    override fun toTicker(onClick: (ticker: Ticker) -> Unit) =
+    override fun toTicker() =
         Ticker(
             nowPrice = DecimalFormat("0.########").format(closingPrice),
             compareYesterday = fluctateRate24H,
-            transactionAmount = getAmount(accTradeValue24H, "KRW"),
-            onClick = onClick
+            transactionAmount = getAmount(accTradeValue24H, "KRW")
         )
 
     override fun toCompareTicker(): CompareTicker =

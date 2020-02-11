@@ -1,11 +1,12 @@
 package com.architecture.study.data.repository
 
-import com.architecture.study.data.Result
-import com.architecture.study.data.Result.Error
-import com.architecture.study.data.Result.Success
-import com.architecture.study.data.model.CompareTicker
-import com.architecture.study.data.model.Ticker
+import com.architecture.study.util.Result
+import com.architecture.study.util.Result.Error
+import com.architecture.study.util.Result.Success
 import com.architecture.study.data.source.remote.UpbitRemoteDataSource
+import com.architecture.study.domain.model.CompareTicker
+import com.architecture.study.domain.model.Ticker
+import com.architecture.study.domain.repository.TickerRepository
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -16,10 +17,7 @@ class UpbitRepository(
     private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO
 ) : TickerRepository {
 
-    override suspend fun getAllTicker(
-        baseCurrency: String?,
-        onClick: (ticker: Ticker) -> Unit
-    ): Result<List<Ticker>> {
+    override suspend fun getAllTicker(baseCurrency: String?): Result<List<Ticker>> {
 
         return withContext(ioDispatcher) {
             val marketResultResponse = upbitRemoteDataSource.getMarketList()
@@ -38,7 +36,7 @@ class UpbitRepository(
 
                 (tickerResultResponse as? Success)?.data?.let { tickerResponseList ->
                     val convertTickerList = tickerResponseList.map { tickerResponse ->
-                        tickerResponse.toTicker(onClick)
+                        tickerResponse.toTicker()
                     }
                     return@withContext Success(convertTickerList)
                 } ?: run {

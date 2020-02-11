@@ -8,9 +8,10 @@ import com.architecture.study.BR
 import com.architecture.study.R
 import com.architecture.study.base.BaseActivity
 import com.architecture.study.base.BaseAdapter
-import com.architecture.study.data.model.CompareTicker
+import com.architecture.study.domain.model.CompareTicker
 import com.architecture.study.databinding.ActivityExchangeCompareBinding
 import com.architecture.study.databinding.ItemCompareTickerBinding
+import com.architecture.study.view.coin.model.CompareTickerItem
 import com.architecture.study.viewmodel.ExchangeCompareViewModel
 import org.koin.androidx.viewmodel.ext.android.viewModel
 
@@ -34,7 +35,7 @@ class ExchangeCompareActivity :
                 onBackPressed()
             }
         }
-        val clickedTicker = intent.getParcelableExtra<CompareTicker>(CLICKED_TICKER)
+        val clickedTicker = intent.getParcelableExtra<CompareTickerItem>(CLICKED_TICKER)
 
         binding.tvTitle.text = clickedTicker.coinName + "/" + clickedTicker.baseCurrency
         viewModel.getCompareTickerList(clickedTicker)

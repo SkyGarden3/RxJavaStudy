@@ -1,7 +1,9 @@
 package com.architecture.study.data.repository.di
 
-import com.architecture.study.data.enums.Exchange
+import com.architecture.study.util.enums.Exchange
 import com.architecture.study.data.repository.*
+import com.architecture.study.domain.repository.ExchangeRepository
+import com.architecture.study.domain.repository.TickerRepository
 import org.koin.core.qualifier.named
 import org.koin.dsl.module
 

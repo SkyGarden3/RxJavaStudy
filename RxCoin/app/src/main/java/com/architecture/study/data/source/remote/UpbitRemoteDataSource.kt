@@ -1,6 +1,6 @@
 package com.architecture.study.data.source.remote
 
-import com.architecture.study.data.Result
+import com.architecture.study.util.Result
 import com.architecture.study.network.model.upbit.UpbitMarketResponse
 import com.architecture.study.network.model.upbit.UpbitTickerResponse
 

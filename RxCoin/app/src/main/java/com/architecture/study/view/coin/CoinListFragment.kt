@@ -1,7 +1,6 @@
 package com.architecture.study.view.coin
 
 import android.content.Intent
-import android.icu.util.Currency
 import android.os.Bundle
 import android.view.View
 import android.widget.Toast
@@ -10,12 +9,11 @@ import com.architecture.study.BR
 import com.architecture.study.R
 import com.architecture.study.base.BaseAdapter
 import com.architecture.study.base.BaseFragment
-import com.architecture.study.data.model.Ticker
+import com.architecture.study.domain.model.Ticker
 import com.architecture.study.databinding.FragmentCoinlistBinding
 import com.architecture.study.databinding.ItemTickerBinding
 import com.architecture.study.util.PrefUtil
 import com.architecture.study.viewmodel.TickerViewModel
-import com.google.gson.Gson
 import org.koin.androidx.viewmodel.ext.android.viewModel
 import org.koin.core.parameter.parametersOf
 

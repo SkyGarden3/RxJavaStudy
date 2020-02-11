@@ -5,7 +5,7 @@
 
         <variable
             name="item"
-            type="com.architecture.study.data.model.CompareTicker" />
+            type="com.architecture.study.view.coin.model.CompareTickerItem" />
     </data>
 
 

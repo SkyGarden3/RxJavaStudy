@@ -1,17 +1,14 @@
 package com.architecture.study.data.repository
 
-import com.architecture.study.data.Result
-import com.architecture.study.data.Result.Success
-import com.architecture.study.data.Result.Error
-import com.architecture.study.data.model.CompareTicker
-import com.architecture.study.data.model.Ticker
+import com.architecture.study.util.Result
+import com.architecture.study.util.Result.Success
+import com.architecture.study.util.Result.Error
+import com.architecture.study.domain.model.CompareTicker
+import com.architecture.study.domain.model.Ticker
 import com.architecture.study.data.source.remote.CoinoneRemoteDataSource
-import com.architecture.study.ext.plusAssign
+import com.architecture.study.domain.repository.TickerRepository
 import com.architecture.study.network.model.coinone.CoinoneResponse
 import com.google.gson.Gson
-import io.reactivex.android.schedulers.AndroidSchedulers
-import io.reactivex.disposables.CompositeDisposable
-import io.reactivex.schedulers.Schedulers
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -23,10 +20,7 @@ class CoinoneRepository(
 ) :
     TickerRepository {
 
-    override suspend fun getAllTicker(
-        baseCurrency: String?,
-        onClick: (ticker: Ticker) -> Unit
-    ): Result<List<Ticker>> {
+    override suspend fun getAllTicker(baseCurrency: String?): Result<List<Ticker>> {
 
         return withContext(ioDispatcher) {
             val resultResponse = coinoneRemoteDataSource.getTickerList()
@@ -42,7 +36,7 @@ class CoinoneRepository(
                     !listOf("result", "timestamp", "errorCode").contains(entry.key)
                 }.map {(_, tickerResponse) ->
                     gson.fromJson(tickerResponse.toString(), CoinoneResponse::class.java)
-                        .toTicker(onClick)
+                        .toTicker()
                 }
 
                 return@withContext Success(tickerList)
