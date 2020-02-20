@@ -1,27 +1,20 @@
 package com.architecture.study.domain.usecase
 
-import com.architecture.study.data.model.CompareTicker
-import com.architecture.study.data.repository.ExchangeRepository
+import com.architecture.study.util.Result
+import com.architecture.study.domain.model.CompareTicker
+import com.architecture.study.domain.repository.ExchangeRepository
 
-class GetTicker(private val exchangeRepository: ExchangeRepository) :
-    UseCase<GetTicker.RequestValues, GetTicker.ResponseValue>() {
+class GetTicker(private val exchangeRepository: ExchangeRepository) {
 
-    override fun executeUseCase(requestValues: RequestValues?) {
-        requestValues?.let {
-            exchangeRepository.getCompareTickerList(
-                clickedTicker = it.clickedTicker,
-                success = { compareTicker ->
-                    useCaseCallback?.onSuccess(ResponseValue(compareTicker))
-                },
-                failed = { message ->
-                    useCaseCallback?.onError(message)
-                }
-            )
-        }
+    suspend operator fun invoke(
+        baseCurrency: String,
+        coinName: String,
+        callback: (result: Result<CompareTicker>) -> Unit
+    ) {
+        exchangeRepository.getCompareTickerList(
+            baseCurrency = baseCurrency,
+            coinName = coinName,
+            callback = callback
+        )
     }
-
-    class RequestValues(val clickedTicker: CompareTicker) :
-        UseCase.RequestValues
-
-    class ResponseValue(val compareTicker: CompareTicker) : UseCase.ResponseValue
 }

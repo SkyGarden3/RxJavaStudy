@@ -5,7 +5,7 @@ import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentPagerAdapter
 import com.architecture.study.R
 import com.architecture.study.base.BaseActivity
-import com.architecture.study.data.enums.Exchange
+import com.architecture.study.util.enums.Exchange
 import com.architecture.study.databinding.ActivityCoinBinding
 import com.architecture.study.util.PrefUtil
 
@@ -28,6 +28,10 @@ class CoinListActivity : BaseActivity<ActivityCoinBinding>(R.layout.activity_coi
                     rbBithumb.id -> {
                         setCurrentExchange(Exchange.BITHUMB.exchangeName)
                         setupTab(Exchange.BITHUMB.baseCurrencies)
+                    }
+                    rbCoinone.id ->{
+                        setCurrentExchange(Exchange.COINONE.exchangeName)
+                        setupTab(Exchange.COINONE.baseCurrencies)
                     }
                 }
             }

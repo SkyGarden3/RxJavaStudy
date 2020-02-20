@@ -4,13 +4,14 @@ import android.widget.TextView
 import androidx.core.content.res.ResourcesCompat
 import androidx.databinding.BindingAdapter
 import com.architecture.study.R
-import com.architecture.study.data.model.CompareTicker
-import com.architecture.study.data.model.Ticker
+import com.architecture.study.domain.model.CompareTicker
+import com.architecture.study.view.coin.model.CompareTickerItem
+import com.architecture.study.view.coin.model.TickerItem
 import java.text.DecimalFormat
 
 @BindingAdapter("compareDiff")
-fun TextView.setCompareDiff(ticker: Ticker) {
-    text = ticker.compareYesterday.let {
+fun TextView.setCompareDiff(tickerItem: TickerItem) {
+    text = tickerItem.compareYesterday.let {
         when {
             it > 0 -> {
                 setTextColor(ResourcesCompat.getColor(resources, R.color.colorRed, null))
@@ -27,8 +28,8 @@ fun TextView.setCompareDiff(ticker: Ticker) {
 }
 
 @BindingAdapter("compareDiff")
-fun TextView.setCompareDiff(ticker: CompareTicker) {
-    text = ticker.comparePrice.let {
+fun TextView.setCompareDiff(tickerItem: CompareTickerItem) {
+    text = tickerItem.comparePrice.let {
         when {
             it > 0 -> {
                 setTextColor(ResourcesCompat.getColor(resources, R.color.colorRed, null))

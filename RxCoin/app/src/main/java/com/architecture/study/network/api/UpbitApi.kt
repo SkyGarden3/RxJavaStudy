@@ -9,8 +9,8 @@ import retrofit2.http.Query
 
 interface UpbitApi {
     @GET("/v1/market/all")
-    fun getMarketData(): Single<List<UpbitMarketResponse>>
+    suspend fun getMarketData(): List<UpbitMarketResponse>
 
     @GET("/v1/ticker?")
-    fun getTickerData(@Query("markets") markets: String): Single<List<UpbitTickerResponse>>
+    suspend fun getTickerData(@Query("markets") markets: String): List<UpbitTickerResponse>
 }

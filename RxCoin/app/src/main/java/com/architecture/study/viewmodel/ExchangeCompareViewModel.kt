@@ -2,49 +2,51 @@ package com.architecture.study.viewmodel
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.viewModelScope
 import com.architecture.study.base.BaseViewModel
-import com.architecture.study.data.model.CompareTicker
+import com.architecture.study.util.Result
+import com.architecture.study.util.Result.Error
+import com.architecture.study.util.Result.Success
+import com.architecture.study.domain.model.CompareTicker
 import com.architecture.study.domain.usecase.GetTicker
-import com.architecture.study.domain.usecase.UseCase
 import com.architecture.study.ext.plusAssign
 import com.architecture.study.util.Event
+import com.architecture.study.view.coin.model.CompareTickerItem
 import io.reactivex.Observable
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.schedulers.Schedulers
+import kotlinx.coroutines.launch
 import java.util.concurrent.TimeUnit
 
 class ExchangeCompareViewModel(private val getTicker: GetTicker) :
     BaseViewModel() {
 
-    private val _compareTickerList = MutableLiveData<List<CompareTicker>>()
-    val compareTickerList: LiveData<List<CompareTicker>>
+    private val _compareTickerList = MutableLiveData<List<CompareTickerItem>>()
+    val compareTickerList: LiveData<List<CompareTickerItem>>
         get() = _compareTickerList
 
-    private lateinit var lastClickedTicker: CompareTicker
+    private lateinit var lastClickedTicker: CompareTickerItem
 
-    init {
-        getTicker.useCaseCallback = object : UseCase.UseCaseCallback<GetTicker.ResponseValue> {
-            override fun onSuccess(response: GetTicker.ResponseValue) {
+    private val callback: (tickers: Result<CompareTicker>) -> Unit = { result ->
 
-                val addedTickerList = mutableListOf<CompareTicker>()
-                compareTickerList.value?.let {
-                    addedTickerList.addAll(it)
-                }
-                addedTickerList.add(response.compareTicker)
-                _compareTickerList.value = addedTickerList
-
-                if (::lastClickedTicker.isInitialized) {
-                    setComparePriceTickerList(lastClickedTicker.exchangeName)
-                }
+        (result as? Success)?.data?.let { compareTicker ->
+            val addedTickerList = mutableListOf<CompareTickerItem>()
+            compareTickerList.value?.let {
+                addedTickerList.addAll(it)
             }
+            addedTickerList.add(CompareTickerItem.of(compareTicker))
+            _compareTickerList.value = addedTickerList
 
-            override fun onError(message: String) {
-                _exceptionMessage.value = Event(message)
+            if (::lastClickedTicker.isInitialized) {
+                setComparePriceTickerList(lastClickedTicker.exchangeName)
             }
+        } ?: run {
+            _exceptionMessage.value =
+                Event((result as Error).exception.message.orEmpty())
         }
     }
 
-    fun getCompareTickerList(clickedTicker: CompareTicker) {
+    fun getCompareTickerList(clickedTicker: CompareTickerItem) {
 
         lastClickedTicker = clickedTicker
 
@@ -53,8 +55,9 @@ class ExchangeCompareViewModel(private val getTicker: GetTicker) :
             .observeOn(AndroidSchedulers.mainThread())
             .subscribe({
                 _compareTickerList.value = listOf()
-                getTicker.requestValues = GetTicker.RequestValues(clickedTicker)
-                getTicker.run()
+                viewModelScope.launch {
+                    getTicker(clickedTicker.baseCurrency, clickedTicker.coinName, callback)
+                }
             }, {
                 _exceptionMessage.value = Event("${it.message}")
             })

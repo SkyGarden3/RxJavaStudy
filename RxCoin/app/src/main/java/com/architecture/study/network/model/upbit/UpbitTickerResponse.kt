@@ -1,10 +1,10 @@
 package com.architecture.study.network.model.upbit
 
-import com.architecture.study.R
-import com.architecture.study.data.enums.Exchange
-import com.architecture.study.data.model.CompareTicker
-import com.architecture.study.data.model.Ticker
-import com.architecture.study.data.model.TickerProvider
+import com.architecture.study.util.enums.Exchange
+import com.architecture.study.domain.model.CompareTicker
+import com.architecture.study.domain.model.Ticker
+import com.architecture.study.domain.model.TickerProvider
+import com.architecture.study.ext.getAmount
 import com.google.gson.annotations.SerializedName
 import java.text.DecimalFormat
 
@@ -63,66 +63,20 @@ data class UpbitTickerResponse(
     @SerializedName("trade_volume")
     val tradeVolume: Double
 ): TickerProvider {
-    override fun toTicker(onClick: (ticker: Ticker) -> Unit, coinName: String): Ticker {
-        val nowPrice = DecimalFormat("0.########").format(tradePrice)
-        val compare = ((tradePrice / prevClosingPrice) - 1) * 100
-        val transactionAmount = getAmount()
 
-        return Ticker(
-            market.split("-")[1],
-            nowPrice,
-            compare,
-            transactionAmount,
-            onClick
+    override fun toTicker() =
+        Ticker(
+            coinName = market.split("-")[1],
+            nowPrice = DecimalFormat("0.########").format(tradePrice),
+            compareYesterday = ((tradePrice / prevClosingPrice) - 1) * 100,
+            transactionAmount = getAmount(accTradePrice24h, market.split("-")[0])
         )
-    }
 
-    override fun toCompareTicker(coinName: String): CompareTicker {
-        val nowPrice = DecimalFormat("0.########").format(tradePrice)
-        val transactionAmount = getAmount()
-        return CompareTicker(
+    override fun toCompareTicker() =
+        CompareTicker(
             coinName = market.split("-")[1],
             exchangeName = Exchange.UPBIT.exchangeName,
-            nowPrice = nowPrice,
-            transactionAmount = transactionAmount
+            nowPrice = DecimalFormat("0.########").format(tradePrice),
+            transactionAmount = getAmount(accTradePrice24h, market.split("-")[0])
         )
-    }
-
-    private fun getAmount() : String{
-        val formatAccTradePrice24h = DecimalFormat("0.###").format(accTradePrice24h)
-
-        return when (market.split("-")[0]) {
-            "KRW" -> {
-                String.format("%,d", (accTradePrice24h / 1000000).toInt()) + "M"
-            }
-            "BTC" -> {
-                String.format(
-                    "%,d",
-                    formatAccTradePrice24h.split(".")[0].toInt()
-                ) + if (formatAccTradePrice24h.split(".").size > 1) {
-                    "." + formatAccTradePrice24h.split(".")[1]
-                } else {
-                    ""
-                }
-            }
-            "ETH" -> {
-                String.format(
-                    "%,d",
-                    formatAccTradePrice24h.split(".")[0].toInt()
-                ) + if (formatAccTradePrice24h.split(".").size > 1) {
-                    "." + formatAccTradePrice24h.split(".")[1]
-                } else {
-                    ""
-                }
-            }
-            "USDT" -> {
-                String.format(
-                    "%,d",
-                    formatAccTradePrice24h.split(".")[0].toInt()
-                ) + " k"
-            }
-
-            else -> error("error")
-        }
-    }
 }

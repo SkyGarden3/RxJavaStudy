@@ -1,18 +1,29 @@
 package com.architecture.study.data.source.remote
 
+import com.architecture.study.util.Result
+import com.architecture.study.util.Result.Error
+import com.architecture.study.util.Result.Success
 import com.architecture.study.network.api.UpbitApi
 import com.architecture.study.network.model.upbit.UpbitMarketResponse
 import com.architecture.study.network.model.upbit.UpbitTickerResponse
-import io.reactivex.Single
-import retrofit2.Call
-import retrofit2.Callback
-import retrofit2.Response
 
-class UpbitRemoteDataSourceImpl (private val upbitApi: UpbitApi) :
+class UpbitRemoteDataSourceImpl(private val upbitApi: UpbitApi) :
     UpbitRemoteDataSource {
-    override fun getMarketList(): Single<List<UpbitMarketResponse>> =
-        upbitApi.getMarketData()
 
-    override fun getTickerList(marketNames: String): Single<List<UpbitTickerResponse>> =
-        upbitApi.getTickerData(marketNames)
+    override suspend fun getMarketList(): Result<List<UpbitMarketResponse>> {
+        return try {
+            Success(upbitApi.getMarketData())
+        } catch (e: Exception) {
+            Error(e)
+        }
+    }
+
+    override suspend fun getTickerList(marketNames: String): Result<List<UpbitTickerResponse>> {
+        return try {
+            Success(upbitApi.getTickerData(marketNames))
+        } catch (e: Exception) {
+            Error(e)
+        }
+    }
+
 }
